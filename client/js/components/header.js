@@ -29,6 +29,7 @@ function setHeaderHTML(name) {
             name
               ? `
             <li id="boards">Boards</li>
+            <li id="your-board">Your Board</li>
             <li id="add-board">Add Board</li>
             Hello ${name}!
             <li id="logout">Logout</li>

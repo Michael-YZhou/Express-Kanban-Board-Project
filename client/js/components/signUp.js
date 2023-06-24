@@ -28,6 +28,8 @@ export function renderSignUpForm() {
       password: formData.get("password"),
     };
 
+    console.log(data);
+
     axios
       .post("/api/users", data)
       .then((_) => {
