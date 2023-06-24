@@ -1,5 +1,6 @@
 import { renderHeader } from "./header.js";
 import { renderBoardList } from "./boardList.js";
+import { renderUserProfile } from "./userProfile.js";
 
 export function renderLoginForm() {
   const page = document.getElementById("page");
@@ -26,7 +27,7 @@ export function renderLoginForm() {
 
     axios.post("/api/session", data).then((_) => {
       renderHeader();
-      renderBoardList();
+      renderUserProfile();
     });
   });
 }
