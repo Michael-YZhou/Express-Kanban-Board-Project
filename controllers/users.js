@@ -22,7 +22,8 @@ router.get("/", (_, response) => {
     .find()
     .toArray()
     .then((users) => {
-      response.json(users);
+      // response.json(users);
+      return response.json(users);
     });
 });
 
