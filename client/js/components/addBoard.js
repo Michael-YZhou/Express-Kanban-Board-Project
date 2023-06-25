@@ -1,23 +1,23 @@
-import { renderBoardList } from "./boardList.js";
-
 let name;
 let email;
 let allUsers = [];
-axios
-  .get("/api/session")
-  .then((response) => {
-    name = response.data.name;
-    email = response.data.email;
-  })
-  .catch((error) => {
-    name = "undefined";
-  });
 
 export function renderAddBoardForm() {
-  const page = document.getElementById("page");
   const heading = document.createElement("h1");
+  axios
+    .get("/api/session")
+    .then((response) => {
+      console.log(response.data.name);
+      name = response.data.name;
+      email = response.data.email;
 
-  heading.textContent = `Add board, ${name}`;
+      heading.textContent = `Add board, ${name}`;
+    })
+    .catch((error) => {
+      name = "there is an error";
+    });
+  const page = document.getElementById("page");
+
   const form = document.createElement("form");
   form.innerHTML = `
         <label for="title">Title:</label>
@@ -53,7 +53,6 @@ export function renderAddBoardForm() {
             },
           ],
         },
-        ,
         {
           column_id: 2,
           column_title: "In Progress",

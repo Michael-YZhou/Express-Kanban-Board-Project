@@ -1,3 +1,5 @@
+import { renderBoard } from "./board.js";
+
 export function renderBoardList() {
   const page = document.getElementById("page");
   const paragraph = document.createElement("p");
@@ -5,12 +7,16 @@ export function renderBoardList() {
   page.replaceChildren(paragraph);
 
   axios.get("/api/boards").then((response) => {
-    const listElements = response.data.map((board) => renderBoard(board));
+    let listElements = [];
+
+    for (let board of response.data) {
+      listElements.push(renderUserBoards(board));
+    }
     page.replaceChildren(...listElements);
   });
 }
 
-function renderBoard(board) {
+function renderUserBoards(board) {
   const el = document.createElement("div");
   el.classList.add("board");
 
@@ -24,7 +30,8 @@ function renderBoard(board) {
   boardDesc.textContent = board.kanban_desc;
 
   el.addEventListener("click", () => {
-    // renderMyProjects()
+    console.log(board._id);
+    renderBoard(board._id);
   });
 
   const deleteButton = document.createElement("button");

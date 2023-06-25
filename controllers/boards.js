@@ -71,38 +71,38 @@ mongoClient
           return this.kanban_columns.length;
         },
       },
-      // // board 2
-      // {
-      //   kanban_title: "Express Backend Project 2",
-      //   kanban_creator: "Andreina",
-      //   kanban_members: ["Yang", "Eddie"],
-      //   kanban_desc: "Use Express to build a web server",
-      //   // each board contains multiple columns
-      //   kanban_columns: [
-      //     {
-      //       column_id: 1,
-      //       column_title: "Planning",
-      //       // each column contains multiple cards/tasks
-      //       cards: [
-      //         {
-      //           card_id: 1,
-      //           card_title: "UI design confirmation",
-      //           card_desc: "Design the UI for all components.",
-      //           card_creator: "Andreina",
-      //           card_members: ["Yang", "Eddie"],
-      //           card_comment: [
-      //             {
-      //               comment_creator: "Andreina",
-      //               comment_create_time: "",
-      //               comment_edit_time: "",
-      //               comment_content: "This must be completed by Friday!",
-      //             },
-      //           ],
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+      // board 2
+      {
+        kanban_title: "Express Backend Project 2",
+        kanban_creator: "Andreina",
+        kanban_members: ["Yang", "Eddie"],
+        kanban_desc: "Use Express to build a web server",
+        // each board contains multiple columns
+        kanban_columns: [
+          {
+            column_id: 1,
+            column_title: "Planning",
+            // each column contains multiple cards/tasks
+            cards: [
+              {
+                card_id: 1,
+                card_title: "UI design confirmation",
+                card_desc: "Design the UI for all components.",
+                card_creator: "Andreina",
+                card_members: ["Yang", "Eddie"],
+                card_comment: [
+                  {
+                    comment_creator: "Andreina",
+                    comment_create_time: "",
+                    comment_edit_time: "",
+                    comment_content: "This must be completed by Friday!",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
     ]);
   })
   .catch((error) => {
@@ -137,7 +137,7 @@ router.all("/:boardId", (request, response, next) => {
 
 // GET all boards
 router.get("/", (request, response) => {
-  // console.log(request.session.name);
+  console.log(request.session.name);
   // response.json(request.session.name);
   boardsCollection
     .find({ kanban_creator: request.session.name })
