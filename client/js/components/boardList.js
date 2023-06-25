@@ -1,3 +1,5 @@
+import { renderBoard } from "./board.js";
+
 export function renderBoardList() {
   const page = document.getElementById("page");
   const paragraph = document.createElement("p");
@@ -5,28 +7,38 @@ export function renderBoardList() {
   page.replaceChildren(paragraph);
 
   axios.get("/api/boards").then((response) => {
-    const listElements = response.data.map((board) => renderBoard(board));
+    let listElements = [];
+
+    for (let board of response.data) {
+      listElements.push(renderUserBoards(board));
+    }
     page.replaceChildren(...listElements);
   });
 }
 
-function renderBoard(board) {
+function renderUserBoards(board) {
   const el = document.createElement("div");
   el.classList.add("board");
 
-  const title = document.createElement("h2");
-  title.textContent = board.name;
+  const creatorName = document.createElement("h2");
+  creatorName.textContent = board.kanban_creator;
 
-  const desc = document.createElement("p");
-  desc.textContent = board.description;
+  const boardTitle = document.createElement("h3");
+  boardTitle.textContent = board.kanban_title;
 
-  const address = document.createElement("p");
-  address.textContent = board.address;
+  const boardDesc = document.createElement("p");
+  boardDesc.textContent = board.kanban_desc;
+
+  el.addEventListener("click", () => {
+    console.log(board._id);
+    renderBoard(board._id);
+  });
 
   const deleteButton = document.createElement("button");
   deleteButton.textContent = "Delete";
   deleteButton.addEventListener("click", () => {
     axios.delete(`api/boards/${board._id}`).then((_) => {
+      //are you sure pop up should go here
       renderBoardList();
     });
   });
@@ -49,7 +61,7 @@ function renderBoard(board) {
       editButton.disabled = true;
     });
 
-  el.append(title, desc, address, deleteButton, editDiv);
+  el.append(boardTitle, boardDesc, creatorName, deleteButton, editDiv);
   return el;
 }
 
