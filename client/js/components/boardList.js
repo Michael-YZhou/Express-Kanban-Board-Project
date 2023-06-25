@@ -14,19 +14,24 @@ function renderBoard(board) {
   const el = document.createElement("div");
   el.classList.add("board");
 
-  const title = document.createElement("h2");
-  title.textContent = board.name;
+  const creatorName = document.createElement("h2");
+  creatorName.textContent = board.kanban_creator;
 
-  const desc = document.createElement("p");
-  desc.textContent = board.description;
+  const boardTitle = document.createElement("h3");
+  boardTitle.textContent = board.kanban_title;
 
-  const address = document.createElement("p");
-  address.textContent = board.address;
+  const boardDesc = document.createElement("p");
+  boardDesc.textContent = board.kanban_desc;
+
+  el.addEventListener("click", () => {
+    // renderMyProjects()
+  });
 
   const deleteButton = document.createElement("button");
   deleteButton.textContent = "Delete";
   deleteButton.addEventListener("click", () => {
     axios.delete(`api/boards/${board._id}`).then((_) => {
+      //are you sure pop up should go here
       renderBoardList();
     });
   });
@@ -49,7 +54,7 @@ function renderBoard(board) {
       editButton.disabled = true;
     });
 
-  el.append(title, desc, address, deleteButton, editDiv);
+  el.append(boardTitle, boardDesc, creatorName, deleteButton, editDiv);
   return el;
 }
 

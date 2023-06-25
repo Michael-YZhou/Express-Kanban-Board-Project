@@ -2,7 +2,7 @@ import { renderBoardList } from "./boardList.js";
 
 let name;
 let email;
-
+let allUsers = [];
 axios
   .get("/api/session")
   .then((response) => {
@@ -19,23 +19,13 @@ export function renderAddBoardForm() {
 
   heading.textContent = `Add board, ${name}`;
   const form = document.createElement("form");
-  let getAllUsers = fetchUsers();
-  for (users of getAllUsers) {
-    let option = document.createElement("option");
-    option.text;
-  }
-
   form.innerHTML = `
         <label for="title">Title:</label>
         <input type="text" name="title">
         <label for="description">Description: </label>
         <input type="text" name="description">
-        <label for="members">Choose project members </label>
-        <select id="members" name = "members">
-        </select> 
         <input type="submit">
     `;
-  // need to add dropdown menu to select members
   const errorMsg = document.createElement("p");
   errorMsg.id = "error-msg";
   page.replaceChildren(heading, form, errorMsg);
@@ -46,45 +36,51 @@ export function renderAddBoardForm() {
 
     const data = {
       kanban_title: formData.get("title"),
-      kanban_desc: formData.get("description"),
       kanban_creator: name,
-
-      //   {
-      //     "_id": "649643a45ded1bddf4fe6dd4",
-      //     "kanban_title": "Express Backend Project 1",
-      //     "kanban_creator": "Yang",
-      //     "kanban_members": [
-      //         "Andreina",
-      //         "Eddie"
-      //     ],
-      //     "kanban_desc": "Use Express to build a web server",
-      //     "kanban_columns": [
-      //         {
-      //             "column_id": 1,
-      //             "column_title": "Planning",
-      //             "cards": [
-      //                 {
-      //                     "card_id": 1,
-      //                     "card_title": "UI design confirmation",
-      //                     "card_desc": "Design the UI for all components.",
-      //                     "card_creator": "Yang",
-      //                     "card_members": [
-      //                         "Andreina",
-      //                         "Eddie"
-      //                     ],
-      //                     "card_comment": [
-      //                         {
-      //                             "comment_creator": "Yang",
-      //                             "comment_create_time": "",
-      //                             "comment_edit_time": "",
-      //                             "comment_content": "This must be completed by Friday!"
-      //                         }
-      //                     ]
-      //                 }
-      //             ]
-      //         }
-      //     ]
-      // }
+      kanban_members: [name],
+      kanban_desc: formData.get("description"),
+      kanban_columns: [
+        {
+          column_id: 1,
+          column_title: "To-Do",
+          cards: [
+            {
+              card_id: 1,
+              card_title: "Task Name 1",
+              card_desc: "",
+              card_creator: name,
+              card_members: [],
+            },
+          ],
+        },
+        ,
+        {
+          column_id: 2,
+          column_title: "In Progress",
+          cards: [
+            {
+              card_id: 1,
+              card_title: "Task Name 2",
+              card_desc: "",
+              card_creator: name,
+              card_members: [],
+            },
+          ],
+        },
+        {
+          column_id: 3,
+          column_title: "For Review",
+          cards: [
+            {
+              card_id: 1,
+              card_title: "Task Name 1",
+              card_desc: "",
+              card_creator: name,
+              card_members: [],
+            },
+          ],
+        },
+      ],
     };
 
     axios
@@ -98,22 +94,3 @@ export function renderAddBoardForm() {
       });
   });
 }
-
-function fetchUsers() {
-  let allUsers = [];
-  axios
-    .get("/api/users")
-    .then((response) => {
-      for (let i = 0; i < response.data.length; i++) {
-        allUsers.push(response.data[i].name);
-      }
-
-      return allUsers;
-    })
-    .catch((error) => {
-      errorMsg.textContent =
-        error.response.status == 400 ? "invalid field(s)" : "unknown error";
-    });
-}
-
-fetchUsers();

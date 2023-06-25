@@ -136,9 +136,11 @@ router.all("/:boardId", (request, response, next) => {
 });
 
 // GET all boards
-router.get("/", (_, response) => {
+router.get("/", (request, response) => {
+  // console.log(request.session.name);
+  // response.json(request.session.name);
   boardsCollection
-    .find()
+    .find({ kanban_creator: request.session.name })
     .toArray()
     .then((boards) => {
       response.json(boards);
@@ -148,9 +150,9 @@ router.get("/", (_, response) => {
 // POST board
 router.post("/", (request, response) => {
   if (
-    !request.body.name ||
-    !request.body.description ||
-    !request.body.address
+    !request.body.kanban_title ||
+    !request.body.kanban_desc ||
+    !request.body.kanban_creator
   ) {
     response
       .status(400)
