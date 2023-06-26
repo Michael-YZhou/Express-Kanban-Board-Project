@@ -20,15 +20,16 @@ mongoClient
         kanban_creator: "Yang",
         kanban_members: ["Andreina", "Eddie"],
         kanban_desc: "Use Express to build a web server",
+        column_id: 2,
         // each board contains multiple columns
         kanban_columns: [
           {
-            column_position: 0,
+            column_id: 0,
             column_title: "Planning",
             // each column contains multiple cards/tasks
             cards: [
               {
-                card_position: 0,
+                card_id: 0,
                 card_title: "UI design confirmation",
                 card_desc: "Design the UI for all components.",
                 card_creator: "Yang",
@@ -45,12 +46,12 @@ mongoClient
             ],
           },
           {
-            column_position: 1,
+            column_id: 1,
             column_title: "In-progress",
             // each column contains multiple cards/tasks
             cards: [
               {
-                card_position: 0,
+                card_id: 0,
                 card_title: "component/board",
                 card_desc: "code the component that renders the board.",
                 card_creator: "Yang",
@@ -67,9 +68,6 @@ mongoClient
             ],
           },
         ],
-        get total_columns() {
-          return this.kanban_columns.length;
-        },
       },
       // board 2
       {
@@ -213,11 +211,12 @@ router.put("/:boardId/columns", (request, response) => {
       console.log(board);
       // add a new column to the json data
       board.kanban_columns.push({
-        column_position: board.total_columns,
+        column_id: board.column_id,
         column_title: request.body.title,
+        cards: [],
       });
-      // update the total number of columns in this board
-      board.total_columns = board.kanban_columns.length;
+      // update the column id tracker
+      board.column_id += 1;
       console.log(board);
       // store the updated json data in database
       const filter = { _id: new ObjectId(request.params.boardId) };
@@ -240,10 +239,10 @@ router.delete("/:boardId/columns/:columnId", (request, response) => {
       board.kanban_columns.splice(indexToRemove, 1);
       // update the total number of columns
       board.total_columns = board.kanban_columns.length;
-      // substract 1 from the position of all elements after the removed column
-      for (let i = indexToRemove; i < board.total_columns; i++) {
-        board.kanban_columns[i].column_position -= 1;
-      }
+      // // substract 1 from the position of all elements after the removed column
+      // for (let i = indexToRemove; i < board.total_columns; i++) {
+      //   board.kanban_columns[i].column_position -= 1;
+      // }
       console.log(board);
       // update the databese
       const filter = { _id: new ObjectId(request.params.boardId) };
@@ -264,7 +263,9 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
   boardsCollection
     .findOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
-      const curPosition = request.params.columnId - 1; // index of the col = position - 1
+      const curPosition = board.kanban_columns.findIndex(
+        (column) => column.column_id === request.params.columnId
+      ); // index of the col = position - 1
       const newPosition = request.body.toPosition - 1;
       // move the selected column to the new index
       board.kanban_columns = arrayMove(

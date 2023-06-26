@@ -30,7 +30,7 @@ function renderUserBoards(board) {
   boardDesc.textContent = board.kanban_desc;
 
   el.addEventListener("click", () => {
-    console.log(board._id);
+    // console.log(board._id);
     renderBoard(board._id);
   });
 
