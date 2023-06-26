@@ -7,7 +7,6 @@ export function renderAddBoardForm() {
   axios
     .get("/api/session")
     .then((response) => {
-      console.log(response.data.name);
       name = response.data.name;
       email = response.data.email;
 
@@ -39,46 +38,47 @@ export function renderAddBoardForm() {
       kanban_creator: name,
       kanban_members: [name],
       kanban_desc: formData.get("description"),
+      columns_id: 0,
       kanban_columns: [
-        {
-          column_id: 1,
-          column_title: "To-Do",
-          cards: [
-            {
-              card_id: 1,
-              card_title: "Task Name 1",
-              card_desc: "",
-              card_creator: name,
-              card_members: [],
-            },
-          ],
-        },
-        {
-          column_id: 2,
-          column_title: "In Progress",
-          cards: [
-            {
-              card_id: 1,
-              card_title: "Task Name 2",
-              card_desc: "",
-              card_creator: name,
-              card_members: [],
-            },
-          ],
-        },
-        {
-          column_id: 3,
-          column_title: "For Review",
-          cards: [
-            {
-              card_id: 1,
-              card_title: "Task Name 1",
-              card_desc: "",
-              card_creator: name,
-              card_members: [],
-            },
-          ],
-        },
+        //   {
+        //     column_id: 1,
+        //     column_title: "To-Do",
+        //     cards: [
+        //       {
+        //         card_id: 1,
+        //         card_title: "Task Name 1",
+        //         card_desc: "",
+        //         card_creator: name,
+        //         card_members: [],
+        //       },
+        //     ],
+        //   },
+        //   {
+        //     column_id: 2,
+        //     column_title: "In Progress",
+        //     cards: [
+        //       {
+        //         card_id: 1,
+        //         card_title: "Task Name 2",
+        //         card_desc: "",
+        //         card_creator: name,
+        //         card_members: [],
+        //       },
+        //     ],
+        //   },
+        //   {
+        //     column_id: 3,
+        //     column_title: "For Review",
+        //     cards: [
+        //       {
+        //         card_id: 1,
+        //         card_title: "Task Name 1",
+        //         card_desc: "",
+        //         card_creator: name,
+        //         card_members: [],
+        //       },
+        //     ],
+        //   },
       ],
     };
 

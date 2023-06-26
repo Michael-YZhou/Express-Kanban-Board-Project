@@ -7,63 +7,7 @@ export function renderBoard(boardId) {
   page.replaceChildren(paragraph);
 
   axios.get(`/api/boards/${boardId}`).then((board) => {
-    /*******************************use hardcoded data for testing****************************** */
-    // const board = {
-    //   _id: boardId,
-    //   kanban_title: "Express Backend Project 1",
-    //   kanban_creator: "Yang",
-    //   kanban_members: ["Andreina", "Eddie"],
-    //   kanban_desc: "Use Express to build a web server",
-    //   kanban_columns: [
-    //     {
-    //       column_position: 0,
-    //       column_title: "column 1: Planning",
-    //       cards: [
-    //         {
-    //           card_position: 0,
-    //           card_title: "card 1: UI design confirmation",
-    //           card_desc: "Design the UI for all components.",
-    //           card_creator: "Yang",
-    //           card_members: ["Andreina", "Eddie"],
-    //           card_comment: [
-    //             {
-    //               comment_creator: "Yang",
-    //               comment_create_time: "",
-    //               comment_edit_time: "",
-    //               comment_content: "This must be completed by Friday!",
-    //             },
-    //           ],
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       column_position: 1,
-    //       column_title: "column 2: In-progress",
-    //       cards: [
-    //         {
-    //           card_position: 0,
-    //           card_title: "card 1: create APIs",
-    //           card_desc: "code the APIs that passes data to the frontend",
-    //           card_creator: "Yang",
-    //           card_members: ["Andreina", "Eddie"],
-    //           card_comment: [
-    //             {
-    //               comment_creator: "Yang",
-    //               comment_create_time: "",
-    //               comment_edit_time: "",
-    //               comment_content: "This is one of the MVP features.",
-    //             },
-    //           ],
-    //         },
-    //       ],
-    //     },
-    //   ],
-    //   total_columns: 2,
-    // };
-    /******************************* hardcoded data finish ****************************** */
-    console.log(board + "outside board ");
     board = board.data;
-    console.log(board.data + " board data log");
     const boardContainer = document.createElement("div");
     boardContainer.id = "board-container";
 
@@ -81,26 +25,62 @@ export function renderBoard(boardId) {
   `;
     boardContainer.insertAdjacentHTML("beforeend", boardHeaderHTML);
 
-    // create the columns section that will be appended to the board
-    const boardColumnsBox = document.createElement("div");
-    boardColumnsBox.id = "board-columns-box";
+    // this is a bootstrap container for the entire column section
+    const columnsContainer = document.createElement("div");
+    columnsContainer.id = "columns-container";
+    columnsContainer.classList = "container test-center";
+
+    //  this is a bootstrap row that contains all columns
+    const columnsContainerRow = document.createElement("div");
+    columnsContainerRow.id = "columns-container-row";
+    columnsContainerRow.classList = "row test-center";
+
     // create column elements and append to the columns section
     for (let column of board.kanban_columns) {
-      console.log(column + "identify");
       const colElem = document.createElement("div");
-      colElem.insertAdjacentHTML("beforeend", `<p>${column.column_title}</p>`); // display column title
+      // each column has the bootstrap col class
+      colElem.classList = "col";
+      // this is the dropdown menu for column actions (bootstrap used)
+      const colHeaderHTML = `
+        <div class="column-header">
+        <div>
+          <p>${column.column_title}</p>
+        </div>
+
+        <div class="dropdown">
+          <button
+            class="btn btn-secondary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            ...
+          </button>
+          <ul class="dropdown-menu">
+            <li><button class="dropdown-item" type="button">Add card</button></li>
+            <li>
+              <button class="dropdown-item" type="button">Move list</button>
+            </li>
+            <li>
+              <button class="dropdown-item" type="button">Delete list</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      `;
+      colElem.insertAdjacentHTML("beforeend", colHeaderHTML); // display column title
       // create and append the cards to the column div
       for (let card of column["cards"]) {
-        console.log(card);
         const cardElem = document.createElement("div");
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
         colElem.appendChild(cardElem);
       }
       // add the column to columns section
-      boardColumnsBox.appendChild(colElem);
+      columnsContainerRow.appendChild(colElem);
     }
     // append the whole columns section to the board container
-    boardContainer.appendChild(boardColumnsBox);
+    columnsContainer.appendChild(columnsContainerRow);
+    boardContainer.appendChild(columnsContainer);
 
     page.replaceChildren(boardContainer);
   });
