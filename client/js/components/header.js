@@ -4,6 +4,7 @@ import { renderLoginForm } from "./login.js";
 import { logout } from "./logout.js";
 import { renderHomePage } from "./home.js";
 import { renderSignUpForm } from "./signUp.js";
+import { renderBoard } from "./board.js";
 import { renderUserProfile } from "./userProfile.js";
 
 export function renderHeader() {
@@ -59,6 +60,9 @@ function setHeaderHTML(name) {
     document
       .querySelector("#navlist>#boards")
       .addEventListener("click", () => renderBoardList());
+    document
+      .querySelector("#navlist>#your-board")
+      .addEventListener("click", () => renderBoard());
     document
       .querySelector("#navlist>#user-profile")
       .addEventListener("click", () => renderUserProfile());
