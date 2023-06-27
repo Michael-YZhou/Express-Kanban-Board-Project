@@ -1,3 +1,4 @@
+import { renderCard } from "./cardList.js";
 export function renderBoard(boardId) {
   const page = document.getElementById("page");
 
@@ -8,6 +9,7 @@ export function renderBoard(boardId) {
 
   axios.get(`/api/boards/${boardId}`).then((board) => {
     board = board.data;
+    console.log(board)
     const boardContainer = document.createElement("div");
     boardContainer.id = "board-container";
 
@@ -72,6 +74,10 @@ export function renderBoard(boardId) {
       // create and append the cards to the column div
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
+        cardElem.classList.add('card_label');
+        cardElem.addEventListener(('click'),() =>{
+          renderCard(boardId);
+        })
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
         colElem.appendChild(cardElem);
       }
