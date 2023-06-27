@@ -1,8 +1,8 @@
-let name;
-let email;
-let allUsers = [];
+import { renderBoardList } from "./boardList.js";
 
 export function renderAddBoardForm() {
+  let name;
+  let email;
   const heading = document.createElement("h1");
   axios
     .get("/api/session")
@@ -38,47 +38,29 @@ export function renderAddBoardForm() {
       kanban_creator: name,
       kanban_members: [name],
       kanban_desc: formData.get("description"),
-      columns_id: 0,
       kanban_columns: [
-        //   {
-        //     column_id: 1,
-        //     column_title: "To-Do",
-        //     cards: [
-        //       {
-        //         card_id: 1,
-        //         card_title: "Task Name 1",
-        //         card_desc: "",
-        //         card_creator: name,
-        //         card_members: [],
-        //       },
-        //     ],
-        //   },
-        //   {
-        //     column_id: 2,
-        //     column_title: "In Progress",
-        //     cards: [
-        //       {
-        //         card_id: 1,
-        //         card_title: "Task Name 2",
-        //         card_desc: "",
-        //         card_creator: name,
-        //         card_members: [],
-        //       },
-        //     ],
-        //   },
-        //   {
-        //     column_id: 3,
-        //     column_title: "For Review",
-        //     cards: [
-        //       {
-        //         card_id: 1,
-        //         card_title: "Task Name 1",
-        //         card_desc: "",
-        //         card_creator: name,
-        //         card_members: [],
-        //       },
-        //     ],
-        //   },
+        {
+          column_id: 1,
+          column_title: "Column 1",
+          // each column contains multiple cards/tasks
+          cards: [
+            {
+              card_id: 1,
+              card_title: "Card Title 1",
+              card_desc: "Card Description.",
+              card_creator: "Card Creator",
+              card_members: ["Member 1", "Member 2"],
+              card_comment: [
+                {
+                  comment_creator: "Comment Creator",
+                  comment_create_time: "",
+                  comment_edit_time: "",
+                  comment_content: "Comment content",
+                },
+              ],
+            },
+          ],
+        },
       ],
     };
 
@@ -88,8 +70,9 @@ export function renderAddBoardForm() {
         renderBoardList();
       })
       .catch((error) => {
-        errorMsg.textContent =
-          error.response.status == 400 ? "invalid field(s)" : "unknown error";
+        errorMsg.textContent = "unknown error";
+        console.log(error);
+        // error.response === 400 ? "invalid field(s)" : "unknown error";
       });
   });
 }

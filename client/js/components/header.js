@@ -29,9 +29,8 @@ function setHeaderHTML(name) {
           ${
             name
               ? `
-            <li id="boards">Boards</li>
-            <li id="your-board">Your Board</li>
-            <li id="add-board">Add Board</li>
+            <li id="boards">My Boards</li>
+            <li id="add-board">Create New Board</li>
             Hello ${name}!
             <li id="logout">Logout</li>
             <li id="user-profile">Profile</li>
@@ -60,12 +59,6 @@ function setHeaderHTML(name) {
     document
       .querySelector("#navlist>#boards")
       .addEventListener("click", () => renderBoardList());
-    document
-      .querySelector("#navlist>#your-board")
-      .addEventListener("click", () => renderBoard());
-    document
-      .querySelector("#navlist>#user-profile")
-      .addEventListener("click", () => renderUserProfile());
   } else {
     document
       .querySelector("#navlist>#signUp")

@@ -142,7 +142,7 @@ mongoClient
 
 // enforce authentication for write operations to boards resource
 router.use("*", (request, response, next) => {
-  if (request.method !== "GET" && !request.session.email) {
+  if (request.method !== "GET" && !request.session.name) {
     response
       .status(401)
       .json({ message: "must be logged in to perform this action" });
@@ -187,7 +187,7 @@ router.post("/", (request, response) => {
   ) {
     response
       .status(400)
-      .json({ message: "name, description and address are mandatory fields" });
+      .json({ message: "title and description are mandatory fields" });
     return;
   }
   boardsCollection.insertOne(request.body).then((_) => {
