@@ -27,7 +27,7 @@ export function renderLoginForm() {
 
     axios.post("/api/session", data).then((_) => {
       renderHeader();
-      renderUserProfile();
+      renderBoardList();
     });
   });
 }
