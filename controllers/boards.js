@@ -21,6 +21,7 @@ mongoClient
         kanban_members: ["Andreina", "Eddie"],
         kanban_desc: "Use Express to build a web server",
         column_id: 2,
+        card_id: 2,
         // each board contains multiple columns
         kanban_columns: [
           {
@@ -51,7 +52,7 @@ mongoClient
             // each column contains multiple cards/tasks
             cards: [
               {
-                card_id: 0,
+                card_id: 1,
                 card_title: "component/board",
                 card_desc: "code the component that renders the board.",
                 card_creator: "Yang",
@@ -321,25 +322,29 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
 
 /********************************* columns finished ******************************** */
 
-
 /******************************** cards apis ******************************* */
-// Add a new column
+// Add a new card
 // takes the board ID from param, take column title from request body {"title": string}
-router.put("/:boardId/columns/:columnsId/cards", (request, response) => {
+router.post("/:boardId/columns/:columnId", (request, response) => {
   // retrieve the specific board which the new column is added to using board id
+  console.log(request.params.boardId);
+  console.log(request.params.columnId);
   boardsCollection
     .findOne({
       _id: new ObjectId(request.params.boardId),
     })
     .then((board) => {
       console.log(board);
+      // filter the required column
+      const column = request.params.columnId;
+      console.log(request.body.data);
       // add a new column to the json data
-      board.kanban_columns.cards.push({
+      board.kanban_columns[column].cards.push({
         card_id: board.card_id,
-        card_title: request.body.title,
-        card_desc: request.body.description,
+        card_title: request.body.card_title,
+        card_desc: request.body.card_desc,
         card_creator: request.session.name,
-        card_members:[],
+        card_members: [],
         cards_comment: [],
       });
       // update the column id tracker
@@ -355,65 +360,70 @@ router.put("/:boardId/columns/:columnsId/cards", (request, response) => {
     .catch((err) => console.error(err));
 });
 
-
 // Delete a column (takes the board ID and the column ID from param)
-router.delete("/:boardId/colunms/:columnId/cards/:cardId", (request, response) => {
-  boardsCollection
-    .findOne({ _id: new ObjectId(request.params.boardId) })
-    .then((board) => {
-      const indexToRemove = request.params.columnId - 1; // index of the col = position - 1
-      console.log(board);
-      // remove the element at the position
-      board.kanban_columns.card.splice(indexToRemove, 1);
-      // update the total number of columns
-      board.total_columns = board.kanban_columns.length;
-      // // substract 1 from the position of all elements after the removed column
-      // for (let i = indexToRemove; i < board.total_columns; i++) {
-      //   board.kanban_columns[i].column_position -= 1;
-      // }
-      console.log(board);
-      // update the databese
-      const filter = { _id: new ObjectId(request.params.boardId) };
-      const update = { $set: board };
-      boardsCollection.updateOne(filter, update).then((_) =>
-        response.json({
-          message: `column at position ${indexToRemove} has been deleted`,
-        })
-      );
-    })
-    .catch((err) => console.error(err));
-});
+router.delete(
+  "/:boardId/colunms/:columnId/cards/:cardId",
+  (request, response) => {
+    boardsCollection
+      .findOne({ _id: new ObjectId(request.params.boardId) })
+      .then((board) => {
+        const indexToRemove = request.params.columnId - 1; // index of the col = position - 1
+        console.log(board);
+        // remove the element at the position
+        board.kanban_columns.card.splice(indexToRemove, 1);
+        // update the total number of columns
+        board.total_columns = board.kanban_columns.length;
+        // // substract 1 from the position of all elements after the removed column
+        // for (let i = indexToRemove; i < board.total_columns; i++) {
+        //   board.kanban_columns[i].column_position -= 1;
+        // }
+        console.log(board);
+        // update the databese
+        const filter = { _id: new ObjectId(request.params.boardId) };
+        const update = { $set: board };
+        boardsCollection.updateOne(filter, update).then((_) =>
+          response.json({
+            message: `column at position ${indexToRemove} has been deleted`,
+          })
+        );
+      })
+      .catch((err) => console.error(err));
+  }
+);
 
 // Move a card to a different position
 // the destination position should be provided in request body {"toPosition": int}
-router.patch("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
-  // retrieve the board from the db
-  boardsCollection
-    .findOne({ _id: new ObjectId(request.params.boardId) })
-    .then((board) => {
-      const curPosition = board.kanban_columns.card.findIndex(
-        (card) => card.card_id === request.params.cardId
-      ); // index of the col = position - 1
-      const newPosition = request.body.toPosition - 1;
-      // move the selected column to the new index
-      board.kanban_columns.card = arrayMove(
-        board.kanban_columns.card,
-        curPosition,
-        newPosition
-      );
-      console.log(board);
-      // update the database
-      const filter = { _id: new ObjectId(request.params.boardId) };
-      const update = { $set: board };
-      boardsCollection.updateOne(filter, update).then((_) =>
-        response.json({
-          message: `Column ${curPosition} has been moved to position ${newPosition}`,
-        })
-      );
-    })
-    .catch((err) => console.error(err));
-  //
-});
+router.patch(
+  "/:boardId/columns/:columnId/cards/:cardId",
+  (request, response) => {
+    // retrieve the board from the db
+    boardsCollection
+      .findOne({ _id: new ObjectId(request.params.boardId) })
+      .then((board) => {
+        const curPosition = board.kanban_columns.card.findIndex(
+          (card) => card.card_id === request.params.cardId
+        ); // index of the col = position - 1
+        const newPosition = request.body.toPosition - 1;
+        // move the selected column to the new index
+        board.kanban_columns.card = arrayMove(
+          board.kanban_columns.card,
+          curPosition,
+          newPosition
+        );
+        console.log(board);
+        // update the database
+        const filter = { _id: new ObjectId(request.params.boardId) };
+        const update = { $set: board };
+        boardsCollection.updateOne(filter, update).then((_) =>
+          response.json({
+            message: `Column ${curPosition} has been moved to position ${newPosition}`,
+          })
+        );
+      })
+      .catch((err) => console.error(err));
+    //
+  }
+);
 
 /********************************* cards finished ******************************** */
 

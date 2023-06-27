@@ -1,4 +1,6 @@
+import { renderAddCardForm } from "./addCard.js";
 import { renderCard } from "./cardList.js";
+
 export function renderBoard(boardId) {
   const page = document.getElementById("page");
 
@@ -9,7 +11,7 @@ export function renderBoard(boardId) {
 
   axios.get(`/api/boards/${boardId}`).then((board) => {
     board = board.data;
-    console.log(board)
+    // console.log(board);
     const boardContainer = document.createElement("div");
     boardContainer.id = "board-container";
 
@@ -42,42 +44,94 @@ export function renderBoard(boardId) {
       const colElem = document.createElement("div");
       // each column has the bootstrap col class
       colElem.classList = "col";
-      // this is the dropdown menu for column actions (bootstrap used)
-      const colHeaderHTML = `
-        <div class="column-header">
-        <div>
-          <p>${column.column_title}</p>
-        </div>
 
-        <div class="dropdown">
-          <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            ...
-          </button>
-          <ul class="dropdown-menu">
-            <li><button class="dropdown-item" type="button">Add card</button></li>
-            <li>
-              <button class="dropdown-item" type="button">Move list</button>
-            </li>
-            <li>
-              <button class="dropdown-item" type="button">Delete list</button>
-            </li>
-          </ul>
-        </div>
-      </div>
-      `;
-      colElem.insertAdjacentHTML("beforeend", colHeaderHTML); // display column title
+      const colHeader = document.createElement("div");
+      colHeader.className = "column-header";
+
+      // col title and the dropdown menu will be appened to colHeader,
+      // colHeader will be appended to colElem
+      const columnTitle = document.createElement("div");
+      columnTitle.innerHTML = `<p>${column.column_title}</p>`;
+
+      // this is the dropdown menu for column actions (bootstrap used)
+      const dropDown = document.createElement("div");
+      dropDown.className = "dropdown";
+
+      const dropDownBtn = document.createElement("button");
+      dropDownBtn.setAttribute("class", "btn btn-secondary dropdown-toggle");
+      dropDownBtn.setAttribute("type", "button");
+      dropDownBtn.setAttribute("data-bs-toggle", "dropdown");
+      dropDownBtn.setAttribute("aria-expanded", "false");
+      dropDownBtn.textContent = "...";
+
+      // create the dropdown ul element
+      const dropDownList = document.createElement("ul");
+      dropDownList.className = "dropdown-menu";
+
+      // create the dropdown list items
+      const addCardBtn = document.createElement("li");
+      addCardBtn.setAttribute("id", "add-card");
+      addCardBtn.setAttribute("class", "dropdown-item");
+      addCardBtn.setAttribute("type", "button");
+      addCardBtn.textContent = "Add card";
+
+      const moveListBtn = document.createElement("li");
+      moveListBtn.setAttribute("id", "move-list");
+      moveListBtn.setAttribute("class", "dropdown-item");
+      moveListBtn.setAttribute("type", "button");
+      moveListBtn.textContent = "Move List";
+
+      const deleteListBtn = document.createElement("li");
+      deleteListBtn.setAttribute("id", "delete-list");
+      deleteListBtn.setAttribute("class", "dropdown-item");
+      deleteListBtn.setAttribute("type", "button");
+      deleteListBtn.textContent = "Delete List";
+
+      dropDownList.append(addCardBtn, moveListBtn, deleteListBtn);
+      dropDown.append(dropDownBtn, dropDownList);
+      colHeader.append(columnTitle, dropDown);
+
+      // const colHeaderHTML = `
+      //   <div class="column-header">
+      //     <div>
+      //       <p>${column.column_title}</p>
+      //     </div>
+
+      //     <div class="dropdown">
+      //       <button
+      //         class="btn btn-secondary dropdown-toggle"
+      //         type="button"
+      //         data-bs-toggle="dropdown"
+      //         aria-expanded="false"
+      //       >
+      //         ...
+      //       </button>
+      //       <ul class="dropdown-menu">
+      //         <li><button id="add-card" class="dropdown-item" type="button">Add card</button></li>
+      //         <li>
+      //           <button id="move-list" class="dropdown-item" type="button">Move list</button>
+      //         </li>
+      //         <li>
+      //           <button id="delete-list" class="dropdown-item" type="button">Delete list</button>
+      //         </li>
+      //       </ul>
+      //     </div>
+      //   </div>
+      // `;
+
+      colElem.appendChild(colHeader); // display column title
+      // console.log(column.column_id);
+      addCardBtn.addEventListener("click", () => {
+        renderAddCardForm(boardId, column.column_id);
+      });
+
       // create and append the cards to the column div
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
-        cardElem.classList.add('card_label');
-        cardElem.addEventListener(('click'),() =>{
+        cardElem.classList.add("card_label");
+        cardElem.addEventListener("click", () => {
           renderCard(boardId);
-        })
+        });
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
         colElem.appendChild(cardElem);
       }
