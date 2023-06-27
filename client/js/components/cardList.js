@@ -1,5 +1,6 @@
 
-export function renderCard(boardId) {
+
+export function renderCard(boardId,columnId,cardId) {
     const page = document.getElementById("page");
   
     // display the loading text while data is being retrieved and page is renderred
@@ -7,15 +8,13 @@ export function renderCard(boardId) {
     paragraph.textContent = "Loading";
     page.replaceChildren(paragraph);
   
-    axios.get(`/api/boards/${boardId}`).then((board) => {
-      board = board.data;
+    axios.get(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((board) => {
+      const card = board.data;
+      // console.log(board)
       const cardContainer = document.createElement("div");
       cardContainer.id = "card-container"; 
-      // create column elements and append to the columns section
-      for (let column of board.kanban_columns) {
-        for (let card of column["cards"]) {
       // render the header section of the board
-            console.log(board.card);
+            // console.log(board.card);
             const cardInfoContainer = document.createElement('div');
             cardInfoContainer.classList.add('cardsinfo');
             cardInfoContainer.draggable = true;
@@ -45,9 +44,9 @@ export function renderCard(boardId) {
               const data = {
                 card_desc: formData.get('description')
               };
-              axios.put(`/api/boards/${boardId}`,data)
+              axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`,data)
               .then(()=>{
-                renderCard(boardId);
+                renderCard(boardId,columnId,cardId);
               })
               .catch((error)=>{
                 console.log(error);
@@ -68,14 +67,20 @@ export function renderCard(boardId) {
             `
             cardInfoContainer.append(cardTitle,cardCreator,cardMembers,cardDescription,descriptionForm,commentContent,commentForm);
 
-            const addCardButton = document.createElement('button');
-            addCardButton.textContent = 'Add more card';
+            const deleteCardButton = document.createElement('button');
+            deleteCardButton.textContent = 'Delete the card';
+            deleteCardButton.addEventListener(('click'),()=>{
+              axios.delete(`/api/boards/${boardId}/colums/${columnId}/cards/${cardId}`).then((_)=>{
+                renderCard(boardId,columnId,cardId);
+              })
+            })
+
     
-            cardContainer.append(cardInfoContainer,addCardButton)
-        }
+            cardContainer.append(cardInfoContainer,deleteCardButton)
+        
         // add the column to columns section
         page.replaceChildren(cardContainer);
-      }
+
     });
   }
   
