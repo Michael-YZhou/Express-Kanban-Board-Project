@@ -1,10 +1,11 @@
-import { renderCard } from "./cardList";
+import { renderCard } from "./cardList.js";
 
 let name;
 let email;
 let allUsers = [];
 
-export function renderAddCardForm() {
+export function renderAddCardForm(boardId, columnId) {
+  console.log(columnId);
   const heading = document.createElement("h1");
   axios
     .get("/api/session")
@@ -40,17 +41,18 @@ export function renderAddCardForm() {
       card_creator: name,
       card_members: [name],
       card_desc: formData.get("description"),
-      card_id: 0,
-      comment: [{
-        comment_creator: name,
-        comment_content:'new comments here',
-      }]
+      comment: [
+        {
+          comment_creator: name,
+          comment_content: "new comments here",
+        },
+      ],
     };
 
     axios
-      .post("/api/boards", data)
+      .post(`/api/boards/${boardId}/columns/${columnId}`, data)
       .then((_) => {
-        renderCard();
+        // renderCard();
       })
       .catch((error) => {
         errorMsg.textContent =
