@@ -33,7 +33,6 @@ function setHeaderHTML(name) {
             <li id="add-board">Create New Board</li>
             Hello ${name}!
             <li id="logout">Logout</li>
-            <li id="user-profile">Profile</li>
             `
               : `
             <li id="signUp">Signup</li>

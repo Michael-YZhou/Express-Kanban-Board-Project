@@ -52,7 +52,7 @@ function renderUserBoards(board) {
   });
   editDiv.append(editButton);
 
-  // Extension: disable buttons if no logged in user
+  // Disable buttons if no logged in user
   axios
     .get("/api/session")
     .then((_) => {})

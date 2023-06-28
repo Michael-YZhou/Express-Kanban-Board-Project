@@ -152,6 +152,7 @@ router.use("*", (request, response, next) => {
   next();
 });
 
+// Board handling API
 router.all("/:boardId", (request, response, next) => {
   boardsCollection
     .findOne({ _id: new ObjectId(request.params.boardId) })
@@ -161,7 +162,8 @@ router.all("/:boardId", (request, response, next) => {
           .status(404)
           .json({ message: `board ${request.params.boardId} does not exist` });
       }
-    });
+    })
+    .catch((err) => console.error(err));
 
   next();
 });
@@ -169,13 +171,14 @@ router.all("/:boardId", (request, response, next) => {
 // GET all boards
 router.get("/", (request, response) => {
   console.log(request.session.name);
-  // response.json(request.session.name);
+
   boardsCollection
     .find({ kanban_creator: request.session.name })
     .toArray()
     .then((boards) => {
       response.json(boards);
-    });
+    })
+    .catch((err) => console.error(err));
 });
 
 // POST board
@@ -190,9 +193,12 @@ router.post("/", (request, response) => {
       .json({ message: "title and description are mandatory fields" });
     return;
   }
-  boardsCollection.insertOne(request.body).then((_) => {
-    response.json();
-  });
+  boardsCollection
+    .insertOne(request.body)
+    .then((_) => {
+      response.json();
+    })
+    .catch((err) => console.error(err));
 });
 
 // retrieve a given board from database
@@ -201,7 +207,8 @@ router.get("/:boardId", (request, response) => {
     .findOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
       response.json(board);
-    });
+    })
+    .catch((err) => console.error(err));
 });
 
 // DELETE board
@@ -210,25 +217,32 @@ router.delete("/:boardId", (request, response) => {
     .deleteOne({ _id: new ObjectId(request.params.boardId) })
     .then((_) => {
       response.json();
-    });
+    })
+    .catch((err) => console.error(err));
 });
 
 // PUT board
 router.put("/:boardId", (request, response) => {
   const filter = { _id: new ObjectId(request.params.boardId) };
   const update = { $set: request.body };
-  boardsCollection.updateOne(filter, update).then((_) => {
-    response.json();
-  });
+  boardsCollection
+    .updateOne(filter, update)
+    .then((_) => {
+      response.json();
+    })
+    .catch((err) => console.error(err));
 });
 
 // PATCH board
 router.patch("/:boardId", (request, response) => {
   const filter = { _id: new ObjectId(request.params.boardId) };
   const update = { $set: request.body };
-  boardsCollection.updateOne(filter, update).then((_) => {
-    response.json();
-  });
+  boardsCollection
+    .updateOne(filter, update)
+    .then((_) => {
+      response.json();
+    })
+    .catch((err) => console.error(err));
 });
 
 /******************************** columns apis ******************************* */
