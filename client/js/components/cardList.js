@@ -1,4 +1,4 @@
-
+import { renderBoard } from "./board.js";
 
 export function renderCard(boardId,columnId,cardId) {
     const page = document.getElementById("page");
@@ -53,11 +53,13 @@ export function renderCard(boardId,columnId,cardId) {
               })
             })
             const commentContent = document.createElement('p');
-            for(let element of card.card_comment){
-                const commentName = element.comment_creator;
-                const comment = element.comment_content;
-                commentContent.append(commentName,comment)
-            };
+            if(Array.isArray(card.card_comment)){
+              for(const comment of card.card_comment){
+                const commentName = comment.comment_creator;
+                const commentDatil = comment.comment_content;
+                commentContent.append(commentName,commentDatil)
+              }
+            }
 
             const commentForm = document.createElement('form');
             commentForm.innerHTML=`
@@ -70,8 +72,8 @@ export function renderCard(boardId,columnId,cardId) {
             const deleteCardButton = document.createElement('button');
             deleteCardButton.textContent = 'Delete the card';
             deleteCardButton.addEventListener(('click'),()=>{
-              axios.delete(`/api/boards/${boardId}/colums/${columnId}/cards/${cardId}`).then((_)=>{
-                renderCard(boardId,columnId,cardId);
+              axios.delete(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((_)=>{
+                renderBoard(boardId);
               })
             })
 
