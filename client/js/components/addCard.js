@@ -1,4 +1,4 @@
-import { renderCard } from "./cardList.js";
+import { renderBoard } from "./board.js";
 
 let name;
 let email;
@@ -52,7 +52,7 @@ export function renderAddCardForm(boardId, columnId) {
     axios
       .post(`/api/boards/${boardId}/columns/${columnId}`, data)
       .then((_) => {
-        // renderCard();
+        renderBoard(boardId)
       })
       .catch((error) => {
         errorMsg.textContent =

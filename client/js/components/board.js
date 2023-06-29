@@ -130,8 +130,6 @@ export function renderBoard(boardId) {
         const cardElem = document.createElement("div");
         cardElem.classList.add("card_label");
         cardElem.addEventListener("click", () => {
-          console.log(column.column_id)
-          console.log(card.card_id)
           renderCard(boardId,column.column_id,card.card_id);
         });
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
