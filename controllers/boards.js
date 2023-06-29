@@ -276,6 +276,8 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
 /********************************* columns finished ******************************** */
 
 /******************************** cards apis ******************************* */
+
+//Add cards
 router.get('/:boardId/columns/:columnId/cards/:cardId', (req,res)=>{
   boardsCollection
   .findOne({_id: new ObjectId(req.params.boardId)})
@@ -334,8 +336,8 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
         card_title: request.body.card_title,
         card_desc: request.body.card_desc,
         card_creator: request.session.name,
-        card_members: [],
-        cards_comment: [],
+        card_members: request.body.card_members,
+        card_comment: request.body.card_comment,
       });
       // update the column id tracker
       board.card_id += 1;
@@ -425,7 +427,18 @@ router.put(
         );
       })
     })
-    //
+
+
 /********************************* cards finished ******************************** */
+
+
+
+/********************************* comment finished ******************************** */
+
+
+
+
+
+/********************************* comment finished ******************************** */
 
 module.exports = router;

@@ -38,6 +38,9 @@ export function renderAddBoardForm() {
       kanban_creator: name,
       kanban_members: [name],
       kanban_desc: formData.get("description"),
+      column_id: 0,
+      card_id: 0,
+      comment_id: 0,
       kanban_columns: [
         {
           column_id: 1,

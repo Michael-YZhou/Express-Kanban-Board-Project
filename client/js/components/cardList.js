@@ -17,7 +17,6 @@ export function renderCard(boardId,columnId,cardId) {
             // console.log(board.card);
             const cardInfoContainer = document.createElement('div');
             cardInfoContainer.classList.add('cardsinfo');
-            cardInfoContainer.draggable = true;
             
             const cardTitle = document.createElement("h1");
             cardTitle.textContent = card.card_title;
@@ -31,6 +30,9 @@ export function renderCard(boardId,columnId,cardId) {
             const cardDescription = document.createElement('p');
             cardDescription.textContent = card.card_desc;
 
+            const errorMessage = document.createElement('p');
+            errorMessage.classList.add('error-message');
+            
             const descriptionForm = document.createElement('form');
             descriptionForm.innerHTML = `
                 <label for='description'>Description here:</label>
@@ -38,26 +40,40 @@ export function renderCard(boardId,columnId,cardId) {
                 <input type='submit'>
             `;
 
-            descriptionForm.addEventListener("submit",(event)=>{
+            descriptionForm.addEventListener("submit", (event) => {
               event.preventDefault();
               const formData = new FormData(descriptionForm);
+              const description = formData.get('description');
+            
+              // 判断输入内容是否为空
+              if (description.trim() === '') {
+                // 输入内容为空，执行相应操作（例如显示错误消息）
+                errorMessage.textContent = 'Description is empty';
+                descriptionForm.appendChild(errorMessage);
+                return;
+              }
+            
               const data = {
-                card_desc: formData.get('description')
+                card_desc: description
               };
-              axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`,data)
-              .then(()=>{
-                renderCard(boardId,columnId,cardId);
-              })
-              .catch((error)=>{
-                console.log(error);
-              })
-            })
+            
+              axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
+                .then(() => {
+                  renderCard(boardId, columnId, cardId);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+            });
+            
             const commentContent = document.createElement('p');
+            console.log(card.card_comment);
             if(Array.isArray(card.card_comment)){
               for(const comment of card.card_comment){
                 const commentName = comment.comment_creator;
+                const creatTime = comment.comment_create_time;
                 const commentDatil = comment.comment_content;
-                commentContent.append(commentName,commentDatil)
+                commentContent.append(commentName,commentDatil,creatTime)
               }
             }
 
