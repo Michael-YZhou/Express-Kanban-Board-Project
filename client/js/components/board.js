@@ -15,20 +15,23 @@ export function renderBoard(boardId) {
     const boardContainer = document.createElement("div");
     boardContainer.id = "board-container";
 
-    // render the header section of the board
+    /************************* Board Component - Section 1 *************************/
+    /******************** create the header section of the board page ************************ */
     const boardHeaderHTML = `
-    <div id="board-header-box">
-      <h1 id="board-title">${board.kanban_title}</h1>
-      <div id="board-users">
-        <div>
-          <p>Created by: ${board.kanban_creator}</p>
-          <p>Members: ${board.kanban_members.join(", ")}</p>
+      <div id="board-header-box">
+        <h1 id="board-title">${board.kanban_title}</h1>
+        <div id="board-users">
+          <div>
+            <p>Created by: ${board.kanban_creator}</p>
+            <p>Members: ${board.kanban_members.join(", ")}</p>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
     boardContainer.insertAdjacentHTML("beforeend", boardHeaderHTML);
 
+    /************************* Board Component - Section 2 *************************/
+    /******************* create the columns section for the board page ***************** */
     // this is a bootstrap container for the entire column section
     const columnsContainer = document.createElement("div");
     columnsContainer.id = "columns-container";
@@ -64,7 +67,7 @@ export function renderBoard(boardId) {
       dropDownBtn.setAttribute("aria-expanded", "false");
       dropDownBtn.textContent = "...";
 
-      // create the dropdown ul element
+      // create the column dropdown ul element
       const dropDownList = document.createElement("ul");
       dropDownList.className = "dropdown-menu";
 
@@ -80,47 +83,25 @@ export function renderBoard(boardId) {
       moveListBtn.setAttribute("class", "dropdown-item");
       moveListBtn.setAttribute("type", "button");
       moveListBtn.textContent = "Move List";
+      // connect this li to the move col modal
+      moveListBtn.setAttribute("data-bs-toggle", "modal");
+      moveListBtn.setAttribute("data-bs-target", "#moveColModal");
+      // set a data attribute for the form in the model to read column id!!!
+      moveListBtn.setAttribute("data-column-id", `${column.column_id}`);
 
       const deleteListBtn = document.createElement("li");
       deleteListBtn.setAttribute("id", "delete-list");
       deleteListBtn.setAttribute("class", "dropdown-item");
       deleteListBtn.setAttribute("type", "button");
       deleteListBtn.textContent = "Delete List";
+      // submenu(form) under delete col
 
       dropDownList.append(addCardBtn, moveListBtn, deleteListBtn);
       dropDown.append(dropDownBtn, dropDownList);
       colHeader.append(columnTitle, dropDown);
+      colElem.appendChild(colHeader);
 
-      // const colHeaderHTML = `
-      //   <div class="column-header">
-      //     <div>
-      //       <p>${column.column_title}</p>
-      //     </div>
-
-      //     <div class="dropdown">
-      //       <button
-      //         class="btn btn-secondary dropdown-toggle"
-      //         type="button"
-      //         data-bs-toggle="dropdown"
-      //         aria-expanded="false"
-      //       >
-      //         ...
-      //       </button>
-      //       <ul class="dropdown-menu">
-      //         <li><button id="add-card" class="dropdown-item" type="button">Add card</button></li>
-      //         <li>
-      //           <button id="move-list" class="dropdown-item" type="button">Move list</button>
-      //         </li>
-      //         <li>
-      //           <button id="delete-list" class="dropdown-item" type="button">Delete list</button>
-      //         </li>
-      //       </ul>
-      //     </div>
-      //   </div>
-      // `;
-
-      colElem.appendChild(colHeader); // display column title
-      // console.log(column.column_id);
+      // add event listener to column dropdown btns
       addCardBtn.addEventListener("click", () => {
         renderAddCardForm(boardId, column.column_id);
       });
@@ -130,7 +111,7 @@ export function renderBoard(boardId) {
         const cardElem = document.createElement("div");
         cardElem.classList.add("card_label");
         cardElem.addEventListener("click", () => {
-          renderCard(boardId,column.column_id,card.card_id);
+          renderCard(boardId, column.column_id, card.card_id);
         });
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
         colElem.appendChild(cardElem);
@@ -138,10 +119,78 @@ export function renderBoard(boardId) {
       // add the column to columns section
       columnsContainerRow.appendChild(colElem);
     }
+
     // append the whole columns section to the board container
     columnsContainer.appendChild(columnsContainerRow);
     boardContainer.appendChild(columnsContainer);
 
+    /************************* Board Component - Section 3 *************************/
+    /**************** create the bootstrap modal for the moving column ***************/
+
+    let optionHTML = "";
+    for (let i = 0; i < board.total_columns; i++) {
+      optionHTML += `<option value=${i}>${i + 1}</option>`;
+    }
+
+    const moveColModalHTML = `
+      <div class="modal fade" id="moveColModal" tabindex="-1" aria-labelledby="moveColModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="moveColModalLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <select id="select-input" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                <option selected>Move to position:</option>
+                ${optionHTML}
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button id="move-col-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // append the model section to the boardContainer
+    boardContainer.insertAdjacentHTML("beforeend", moveColModalHTML);
+
     page.replaceChildren(boardContainer);
+
+    // add event listener to the model body so that the form value gets undated based on the column selected
+    const moveColModal = document.getElementById("moveColModal");
+    let curColumnId;
+    if (moveColModal) {
+      moveColModal.addEventListener("show.bs.modal", (event) => {
+        // Button that triggered the modal
+        const button = event.relatedTarget;
+        console.log(button);
+        // Extract the current column id from data-column-id attributes
+        curColumnId = button.getAttribute("data-column-id");
+        // If necessary, you could initiate an Ajax request here
+        // and then do the updating in a callback.
+
+        // Update the modal's content.
+        const modalTitle = moveColModal.querySelector(".modal-title");
+        const modalBodyInput = moveColModal.querySelector(".modal-body input");
+
+        modalTitle.textContent = `Moving column ${curColumnId}`;
+        // modalBodyInput.value = curColumnId;
+      });
+    }
+
+    const moveColBtn = document.getElementById("move-col-btn");
+    moveColBtn.addEventListener("click", (e) => {
+      const selectValue = {
+        toPosition: Number(document.getElementById("select-input").value),
+      };
+      axios
+        .patch(`/api/boards/${boardId}/columns/${curColumnId}`, selectValue)
+        .then(renderBoard(boardId))
+        .catch((err) => console.error(err));
+    });
   });
 }

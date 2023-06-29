@@ -42,7 +42,7 @@ mongoClient
                     comment_edit_time: "",
                     comment_content: "This must be completed by Friday!",
                   },
-                ]
+                ],
               },
               {
                 card_id: 2,
@@ -83,10 +83,13 @@ mongoClient
               },
             ],
           },
-        ]
-    }
-    ])
-  })     
+        ],
+        get total_columns() {
+          return this.kanban_columns.length;
+        },
+      },
+    ]);
+  })
   .catch((error) => {
     console.log(error);
   });
@@ -215,9 +218,7 @@ router.put("/:boardId/columns", (request, response) => {
 // Delete a column (takes the board ID and the column ID from param)
 router.delete("/:boardId/columns/:columnId", (request, response) => {
   boardsCollection
-    .updateOne({ _id: new ObjectId(request.params.boardId) },
-    {$pull:{"kanban_columns.$[].cards":{'card_id':request.params.card_id}}}
-    )
+    .updateOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
       const indexToRemove = request.params.columnId - 1; // index of the col = position - 1
       console.log(board);
@@ -278,45 +279,20 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
 /******************************** cards apis ******************************* */
 
 //Add cards
-router.get('/:boardId/columns/:columnId/cards/:cardId', (req,res)=>{
+router.get("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
   boardsCollection
-  .findOne({_id: new ObjectId(req.params.boardId)})
-  .then((board)=>{
-    console.log(board);
-    console.log(req.params.columnId);
-    console.log(req.params.cardId);
-    const columnIndex = board.kanban_columns.findIndex(
-    (column) => column.column_id == req.params.columnId
-    );// index of the col = position - 1
-    const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-      (card) => card.card_id == req.params.cardId
-    ); 
-    res.json(board.kanban_columns[columnIndex].cards[cardIndex])
-  })
-})
-
-// router.get('/:boardId/cards/:cardIndex',(request,response)=>{
-//   const boardId = new ObjectId(req.params.id);
-//   boardsCollection.aggregate([
-//     {
-//       $match:{_id:boardId}
-//     },
-//     {
-//       $unwind:'$kanban_columns'
-//     },
-//     {
-//       $unwind:'$kanban_columns.cards'
-//     },
-//     {
-//       $project:{
-//         card:'$kanban_columns.cards'
-//       }
-//     }
-//   ]).toArray()
-//   .then((card)=>{
-//     response.json(card);
-//   })
-// })
+    .findOne({ _id: new ObjectId(req.params.boardId) })
+    .then((board) => {
+      console.log(board);
+      const columnIndex = board.kanban_columns.findIndex(
+        (column) => (column.column_id = req.params.columnId)
+      ); // index of the col = position - 1
+      const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
+        (card) => (card.card_id = req.params.cardId)
+      );
+      res.json(board.kanban_columns[columnIndex].cards[cardIndex]);
+    });
+});
 
 // Add a new card
 // takes the board ID from param, take column title from request body {"title": string}
@@ -353,23 +329,24 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
 });
 
 //deleting card
-router.delete('/:boardId/columns/:columnId/cards/:cardId', (req, res) => {
+router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
   const boardId = new ObjectId(req.params.boardId);
   const cardId = parseInt(req.params.cardId);
 
-  boardsCollection.updateOne(
-    { _id: boardId }, // 根据文档的 `_id` 进行匹配
-    { $pull: { "kanban_columns.$[].cards": { "card_id": cardId } } } // 从 `kanban_columns.cards` 数组中移除具有指定 `card_id` 的元素
-  )
+  boardsCollection
+    .updateOne(
+      { _id: boardId }, // 根据文档的 `_id` 进行匹配
+      { $pull: { "kanban_columns.$[].cards": { card_id: cardId } } } // 从 `kanban_columns.cards` 数组中移除具有指定 `card_id` 的元素
+    )
     .then(() => {
-      res.json({ message: 'Card deleted successfully' });
+      res.json({ message: "Card deleted successfully" });
     })
     .catch((error) => {
-      res.json({ message: 'Error deleting card' });
+      res.json({ message: "Error deleting card" });
     });
 });
 
-  // a card to a different position
+// a card to a different position
 // the destination position should be provided in request body {"toPosition": int}
 router.patch(
   "/:boardId/columns/:columnId/cards/:cardId",
@@ -404,40 +381,32 @@ router.patch(
 );
 
 //cards description updates
-router.put(
-  "/:boardId/columns/:columnId/cards/:cardId",
-  (request, response) => {
-      boardsCollection
-        .findOne({_id: new ObjectId(request.params.boardId)})
-        .then((board)=>{
-          console.log(board)
-          const columnIndex = board.kanban_columns.findIndex(
-          (column) => column.column_id == request.params.columnId
-          );
-          const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-          (card) => card.card_id == request.params.cardId
-          ); 
-          board.kanban_columns[columnIndex].cards[cardIndex].card_desc = request.body.card_desc;
-        const filter = { _id: new ObjectId(request.params.boardId)};
-        const update = { $set: board };
-        boardsCollection.updateOne(filter, update).then((_) =>
-          response.json({
-            message: `Description has been changedz`,
-          })
-        );
-      })
-    })
-
+router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
+  boardsCollection
+    .findOne({ _id: new ObjectId(request.params.boardId) })
+    .then((board) => {
+      console.log(board);
+      const columnIndex = board.kanban_columns.findIndex(
+        (column) => column.column_id == request.params.columnId
+      );
+      const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
+        (card) => card.card_id == request.params.cardId
+      );
+      board.kanban_columns[columnIndex].cards[cardIndex].card_desc =
+        request.body.card_desc;
+      const filter = { _id: new ObjectId(request.params.boardId) };
+      const update = { $set: board };
+      boardsCollection.updateOne(filter, update).then((_) =>
+        response.json({
+          message: `Description has been changedz`,
+        })
+      );
+    });
+});
 
 /********************************* cards finished ******************************** */
 
-
-
 /********************************* comment finished ******************************** */
-
-
-
-
 
 /********************************* comment finished ******************************** */
 
