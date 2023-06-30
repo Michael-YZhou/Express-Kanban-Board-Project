@@ -22,6 +22,7 @@ mongoClient
         kanban_desc: "Use Express to build a web server",
         column_id: 2,
         card_id: 3,
+        comment_id:1,
         // each board contains multiple columns
         kanban_columns: [
           {
@@ -37,6 +38,7 @@ mongoClient
                 card_members: ["Andreina", "Eddie"],
                 card_comment: [
                   {
+                    comment_id:0,
                     comment_creator: "Yang",
                     comment_create_time: "",
                     comment_edit_time: "",
@@ -285,10 +287,10 @@ router.get("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
     .then((board) => {
       console.log(board);
       const columnIndex = board.kanban_columns.findIndex(
-        (column) => (column.column_id = req.params.columnId)
+        (column) => (column.column_id == req.params.columnId)
       ); // index of the col = position - 1
       const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-        (card) => (card.card_id = req.params.cardId)
+        (card) => (card.card_id == req.params.cardId)
       );
       res.json(board.kanban_columns[columnIndex].cards[cardIndex]);
     });
@@ -381,33 +383,233 @@ router.patch(
 );
 
 //cards description updates
+// router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
+//   boardsCollection
+//     .findOne({ _id: new ObjectId(request.params.boardId) })
+//     .then((board) => {
+//       console.log(board);
+//       const columnIndex = board.kanban_columns.findIndex(
+//         (column) => column.column_id == request.params.columnId
+//       );
+//       const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
+//         (card) => card.card_id == request.params.cardId
+//       );
+//       board.kanban_columns[columnIndex].cards[cardIndex].card_desc =
+//         request.body.card_desc;
+//       const filter = { _id: new ObjectId(request.params.boardId) };
+//       const update = { $set: board };
+//       boardsCollection.updateOne(filter, update).then((_) =>
+//         response.json({
+//           message: `Description has been changedz`,
+//         })
+//       );
+//     });
+// });
+
+//Change the title and description
 router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
-  boardsCollection
-    .findOne({ _id: new ObjectId(request.params.boardId) })
-    .then((board) => {
-      console.log(board);
-      const columnIndex = board.kanban_columns.findIndex(
-        (column) => column.column_id == request.params.columnId
-      );
-      const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-        (card) => card.card_id == request.params.cardId
-      );
-      board.kanban_columns[columnIndex].cards[cardIndex].card_desc =
-        request.body.card_desc;
-      const filter = { _id: new ObjectId(request.params.boardId) };
-      const update = { $set: board };
-      boardsCollection.updateOne(filter, update).then((_) =>
-        response.json({
-          message: `Description has been changedz`,
-        })
-      );
+  const boardId = new ObjectId(request.params.boardId);
+  const columnId = parseInt(request.params.columnId);
+  const cardId = parseInt(request.params.cardId);
+  const { card_title, card_desc } = request.body;
+
+  const filter = {
+    _id: boardId,
+    "kanban_columns.column_id": columnId,
+    "kanban_columns.cards.card_id": cardId
+  };
+
+  const update = {};
+
+  if (card_title && !card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_title": card_title
+    };
+  } else if (!card_title && card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+    };
+  } else if (card_title && card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_title": card_title,
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+    };
+  } else {
+    response.json({ message: "No update fields provided" });
+    return;
+  }
+
+  const options = {
+    arrayFilters: [
+      { "column.column_id": columnId },
+      { "card.card_id": cardId }
+    ]
+  };
+
+  boardsCollection.updateOne(filter, update, options)
+    .then((_) => {
+      response.json({
+        message: "Card details have been updated"
+      });
+    })
+    .catch((error) => {
+      response.json({ message: "Error updating card details" });
     });
 });
 
 /********************************* cards finished ******************************** */
 
 /********************************* comment finished ******************************** */
+router.put('/:boardId/columns/:columnId/cards/:cardId/comments/:commentId', (req, res) => {
+  const boardId = req.params.boardId;
+  const columnId = req.params.columnId;
+  const cardId = req.params.cardId;
+  const commentId = req.params.commentId;
+  const newCommentContent = req.body.comment_content;
 
+  // 更新数据库中的 comment_content
+  boardsCollection.updateOne(
+    { 
+      _id: new ObjectId(boardId),
+      'kanban_columns.column_id': parseInt(columnId),
+      'kanban_columns.cards.card_id': parseInt(cardId),
+      'kanban_columns.cards.card_comment.comment_id': parseInt(commentId)
+    },
+    {
+      $set: {
+        'kanban_columns.$[column].cards.$[card].card_comment.$[comment].comment_content': newCommentContent
+      }
+    },
+    {
+      arrayFilters: [
+        { 'column.column_id': parseInt(columnId) },
+        { 'card.card_id': parseInt(cardId) },
+        { 'comment.comment_id': parseInt(commentId) }
+      ]
+    }
+  )
+    .then(() => {
+      res.json({ message: 'Comment content updated successfully' });
+    })
+    .catch((error) => {
+      res.json({ message: 'Error updating comment content' });
+    });
+});
+
+
+router.delete("/:boardId/columns/:columnId/cards/:cardId/comments/:commentId", (req, res) => {
+  const boardId = new ObjectId(req.params.boardId);
+  const columnId = parseInt(req.params.columnId);
+  const cardId = parseInt(req.params.cardId);
+  const commentId = parseInt(req.params.commentId);
+
+  boardsCollection
+    .updateOne(
+      { _id: boardId, "kanban_columns.column_id": columnId, "kanban_columns.cards.card_id": cardId },
+      { $pull: { "kanban_columns.$.cards.$[card].card_comment": { comment_id: commentId } } },
+      { arrayFilters: [{ "card.card_id": cardId }] }
+    )
+    .then(() => {
+      res.json({ message: "Comment deleted successfully" });
+    })
+    .catch((error) => {
+      res.json({ message: "Error deleting comment" });
+    });
+});
+
+router.post("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
+  // retrieve the specific board which the new column is added to using board id
+  boardsCollection
+    .findOne({
+      _id: new ObjectId(request.params.boardId),
+    })
+    .then((board) => {
+      // filter the required column
+      const column = request.params.columnId;
+      console.log(column);
+      const card = request.params.cardId;
+      console.log(card);
+      // add a new column to the json data
+      const commentSection = board.kanban_columns[column].cards[card].card_comment
+      commentSection.push({
+        comment_id: board.comment_id,
+        comment_creator: request.session.name,
+        comment_create_time: request.body.comment_create_time,
+        comment_content: request.body.comment_content,
+      });
+      // update the column id tracker
+      board.comment_id += 1;
+      console.log(board);
+      // store the updated json data in database
+      const filter = { _id: new ObjectId(request.params.boardId) };
+      const update = { $set: board };
+      boardsCollection.updateOne(filter, update).then((_) => {
+        response.json({ message: "a new card has been added to the board" });
+      });
+    })
+    .catch((err) => console.error(err));
+});
+// boardsCollection.findOne({
+//   _id: new ObjectId(request.params.boardId),
+// })
+//   .then((board) => {
+//     const columnId = parseInt(request.params.columnId);
+//     const cardId = parseInt(request.params.cardId);
+
+//     // Verify if the board and required column exist
+//     if (!board || !board.kanban_columns || !Array.isArray(board.kanban_columns) || columnId < 0 || columnId >= board.kanban_columns.length) {
+//       return response.status(404).json({ message: 'Board or column not found' });
+//     }
+
+//     const column = board.kanban_columns[columnId];
+
+//     // Verify if the required card exists
+//     if (!column.cards || !Array.isArray(column.cards) || cardId < 0 || cardId >= column.cards.length) {
+//       return response.status(404).json({ message: 'Card not found' });
+//     }
+
+//     const card = column.cards[cardId];
+
+//     // Verify if the card_comment property exists and is an array
+//     if (!card.card_comment || !Array.isArray(card.card_comment)) {
+//       return response.status(400).json({ message: 'Invalid card comment data' });
+//     }
+
+//     // Generate a new comment ID
+//     const commentId = board.comment_id;
+
+//     // Create a new comment object
+//     const newComment = {
+//       comment_id: commentId,
+//       comment_creator: request.session.name,
+//       comment_create_time: request.body.comment_create_time,
+//       comment_content: request.body.comment_content,
+//     };
+
+//     // Push the new comment to the card's comment array
+//     card.card_comment.push(newComment);
+
+//     // Increment the comment_id counter
+//     board.comment_id += 1;
+
+//     // Update the board in the database
+//     const filter = { _id: new ObjectId(request.params.boardId) };
+//     const update = { $set: board };
+
+//     boardsCollection.updateOne(filter, update)
+//       .then(() => {
+//         response.json({ message: "A new comment has been added to the card" });
+//       })
+//       .catch((err) => {
+//         console.error(err);
+//         response.status(500).json({ message: 'Internal server error' });
+//       });
+//   })
+//   .catch((err) => {
+//     console.error(err);
+//     response.status(500).json({ message: 'Internal server error' });
+//   });
+// })
 /********************************* comment finished ******************************** */
 
 module.exports = router;
