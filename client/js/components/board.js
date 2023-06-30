@@ -118,6 +118,59 @@ export function renderBoard(boardId) {
 
         const cardMoveButton = document.createElement('button');
         cardMoveButton.textContent = 'move card';
+        cardMoveButton.classList.add('cardmovebutton')
+          cardMoveButton.addEventListener('click',()=>{
+            const cardMoveContainer = document.createElement('div');
+            const curColumnId = column.column_id;
+            const curCardId = card.card_id;
+            const selectElement = document.createElement('select');
+            for(const column of board.kanban_columns){
+              const optionElement = document.createElement('option');
+              optionElement.value = column.column_id;
+              optionElement.textContent = column.column_title;
+              selectElement.appendChild(optionElement);
+            }
+             // 创建提交按钮
+            const submitButton = document.createElement('button');
+            submitButton.textContent = 'Move';
+
+            // 创建取消按钮
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancel';
+            cardMoveContainer.append(selectElement,submitButton,cancelButton);
+            colElem.appendChild(cardMoveContainer)
+            // 绑定取消按钮的点击事件处理程序
+            cancelButton.addEventListener('click', () => {
+              // 从父元素中移除选择元素和按钮
+              cardMoveContainer.removeChild(selectElement);
+              cardMoveContainer.removeChild(submitButton);
+              cardMoveContainer.removeChild(cancelButton);
+            });
+
+            // 绑定提交按钮的点击事件处理程序
+            submitButton.addEventListener('click', () => {
+              const targetColumnId = selectElement.value;
+
+              // 调用移动卡片的函数，将卡片从当前列移动到目标列
+              moveCard(boardId, curColumnId, curCardId, targetColumnId);
+
+              // 从父元素中移除选择元素和按钮
+              cardMoveContainer.removeChild(selectElement);
+              cardMoveContainer.removeChild(submitButton);
+              cardMoveContainer.removeChild(cancelButton);
+
+              function moveCard(boardId, curColumnId, curCardId, targetColumnId) {
+                // 发送 Axios PATCH 请求来更新卡片的所属列信息
+                axios.patch(`/api/boards/${boardId}/columns/${curColumnId}/cards/${curCardId}`, { column_id: targetColumnId })
+                  .then(() => {
+                    renderBoard(boardId); // 处理成功响应
+                  })
+                  .catch((error) => {
+                    console.log(error); // 处理错误
+                  });
+              }
+            });
+          })
         colElem.append(cardElem,cardMoveButton);
       }
       // add the column to columns section
@@ -128,6 +181,9 @@ export function renderBoard(boardId) {
     columnsContainer.appendChild(columnsContainerRow);
     boardContainer.appendChild(columnsContainer);
 
+
+    
+    
     /************************* Board Component - Section 3 *************************/
     /**************** create the bootstrap modal for the moving column ***************/
 
@@ -198,3 +254,6 @@ export function renderBoard(boardId) {
     });
   });
 }
+
+
+

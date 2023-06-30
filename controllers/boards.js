@@ -296,8 +296,7 @@ router.get("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
     });
 });
 
-// Add a new card
-// takes the board ID from param, take column title from request body {"title": string}
+
 router.post("/:boardId/columns/:columnId", (request, response) => {
   // retrieve the specific board which the new column is added to using board id
   boardsCollection
@@ -330,7 +329,58 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
     .catch((err) => console.error(err));
 });
 
-//deleting card
+
+// takes the board ID from param, take column title from request body {"title": string}
+router.patch('/:boardId/columns/:curColumnId/cards/:curCardId', async (req, res) => {
+  try {
+    const boardId = req.params.boardId;
+    const curColumnId = parseInt(req.params.curColumnId);
+    const curCardId = parseInt(req.params.curCardId);
+    const targetColumnId = parseInt(req.body.column_id);
+    console.log(curCardId);
+    console.log(curColumnId);
+    console.log(targetColumnId);
+
+    const board = await boardsCollection.findOne({ _id: new ObjectId(boardId) });
+    console.log(board);
+    let removedCard;
+    board.kanban_columns.forEach((column) => {
+      if (column.column_id == curColumnId) {
+        console.log(column);
+        column.cards.forEach((card) => {
+          if (card.card_id == curCardId) {
+            removedCard = { ...card }; // 复制卡片内容
+          }
+        });
+      }
+    });
+    console.log(removedCard);
+
+
+
+    await boardsCollection.findOneAndUpdate(
+      { _id: new ObjectId(boardId), "kanban_columns.column_id": curColumnId },
+      { $pull: { "kanban_columns.$[].cards": { card_id: curCardId } } },
+      { returnOriginal: false }
+    );
+    // "kanban_columns.column_id": targetColumnId 
+    await boardsCollection.findOneAndUpdate(
+      { _id: new ObjectId(boardId)},
+      { $push: { "kanban_columns.$[column].cards": removedCard } },
+      {arrayFilters: [
+        { 'column.column_id': parseInt(targetColumnId) },
+      ]},
+      { returnOriginal: false }
+    );
+
+    res.sendStatus(200); // 返回成功状态码
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500); // 返回服务器错误状态码
+  }
+});
+
+//delete card
 router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
   const boardId = new ObjectId(req.params.boardId);
   const cardId = parseInt(req.params.cardId);
@@ -350,38 +400,39 @@ router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
 
 // a card to a different position
 // the destination position should be provided in request body {"toPosition": int}
-router.patch(
-  "/:boardId/columns/:columnId/cards/:cardId",
-  (request, response) => {
-    // retrieve the board from the db
-    boardsCollection
-      .findOne({ _id: new ObjectId(request.params.boardId) })
-      .then((board) => {
-        const curPosition = board.kanban_columns.card.findIndex(
-          (card) => card.card_id === request.params.cardId
-        ); // index of the col = position - 1
-        const newPosition = request.body.toPosition - 1;
-        // move the selected column to the new index
-        board.kanban_columns.card = arrayMove(
-          board.kanban_columns.card,
-          curPosition,
-          newPosition
-        );
-        console.log(board);
-        // update the database
-        const filter = { _id: new ObjectId(request.params.boardId) };
-        const update = { $set: board };
-        boardsCollection.updateOne(filter, update).then((_) =>
-          response.json({
-            message: `Column ${curPosition} has been moved to position ${newPosition}`,
-          })
-        );
-      })
-      .catch((err) => console.error(err));
-    //
-  }
-);
+// router.patch(
+//   "/:boardId/columns/:columnId/cards/:cardId",
+//   (request, response) => {
+//     // retrieve the board from the db
+//     boardsCollection
+//       .findOne({ _id: new ObjectId(request.params.boardId) })
+//       .then((board) => {
+//         const curPosition = board.kanban_columns.card.findIndex(
+//           (card) => card.card_id === request.params.cardId
+//         ); // index of the col = position - 1
+//         const newPosition = request.body.toPosition - 1;
+//         // move the selected column to the new index
+//         board.kanban_columns.card = arrayMove(
+//           board.kanban_columns.card,
+//           curPosition,
+//           newPosition
+//         );
+//         console.log(board);
+//         // update the database
+//         const filter = { _id: new ObjectId(request.params.boardId) };
+//         const update = { $set: board };
+//         boardsCollection.updateOne(filter, update).then((_) =>
+//           response.json({
+//             message: `Column ${curPosition} has been moved to position ${newPosition}`,
+//           })
+//         );
+//       })
+//       .catch((err) => console.error(err));
+//     //
+//   }
+// );
 
+  
 //cards description updates
 // router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
 //   boardsCollection
@@ -525,12 +576,15 @@ router.post("/:boardId/columns/:columnId/cards/:cardId", (request, response) => 
     })
     .then((board) => {
       // filter the required column
-      const column = request.params.columnId;
-      console.log(column);
-      const card = request.params.cardId;
-      console.log(card);
+      const columnIndex = board.kanban_columns.findIndex(
+        (column) => (column.column_id == request.params.columnId)
+      ); // index of the col = position - 1
+      const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
+        (card) => (card.card_id == request.params.cardId)
+      );
       // add a new column to the json data
-      const commentSection = board.kanban_columns[column].cards[card].card_comment
+      const commentSection = board.kanban_columns[columnIndex].cards[cardIndex].card_comment
+      
       commentSection.push({
         comment_id: board.comment_id,
         comment_creator: request.session.name,
