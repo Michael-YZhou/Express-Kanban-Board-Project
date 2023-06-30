@@ -94,7 +94,11 @@ export function renderBoard(boardId) {
       deleteListBtn.setAttribute("class", "dropdown-item");
       deleteListBtn.setAttribute("type", "button");
       deleteListBtn.textContent = "Delete List";
-      // submenu(form) under delete col
+      // connect this li to the move col modal
+      deleteListBtn.setAttribute("data-bs-toggle", "modal");
+      deleteListBtn.setAttribute("data-bs-target", "#deleteColModal");
+      // set a data attribute for the form in the model to read column id!!!
+      deleteListBtn.setAttribute("data-column-id", `${column.column_id}`);
 
       dropDownList.append(addCardBtn, moveListBtn, deleteListBtn);
       dropDown.append(dropDownBtn, dropDownList);
@@ -116,9 +120,9 @@ export function renderBoard(boardId) {
         });
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
 
-        const cardMoveButton = document.createElement('button');
-        cardMoveButton.textContent = 'move card';
-        colElem.append(cardElem,cardMoveButton);
+        const cardMoveButton = document.createElement("button");
+        cardMoveButton.textContent = "move card";
+        colElem.append(cardElem, cardMoveButton);
       }
       // add the column to columns section
       columnsContainerRow.appendChild(colElem);
@@ -128,9 +132,8 @@ export function renderBoard(boardId) {
     columnsContainer.appendChild(columnsContainerRow);
     boardContainer.appendChild(columnsContainer);
 
-    /************************* Board Component - Section 3 *************************/
-    /**************** create the bootstrap modal for the moving column ***************/
-
+    /************************* Board Modals - Section 3 *************************/
+    /*********************** bootstrap modal for the moving column **********************/
     let optionHTML = "";
     for (let i = 0; i < board.total_columns; i++) {
       optionHTML += `<option value=${i}>${i + 1}</option>`;
@@ -162,9 +165,30 @@ export function renderBoard(boardId) {
     // append the model section to the boardContainer
     boardContainer.insertAdjacentHTML("beforeend", moveColModalHTML);
 
+    /*********************** bootstrap modal for the delete column **********************/
+    const deleteColModalHTML = `
+      <div class="modal fade" id="deleteColModal" tabindex="-1" aria-labelledby="deleteColModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteColModalLabel">Modal title</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button id="delete-col-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    boardContainer.insertAdjacentHTML("beforeend", deleteColModalHTML);
+
     page.replaceChildren(boardContainer);
 
-    // add event listener to the model body so that the form value gets undated based on the column selected
+    // attach event listener to the body of the MOVE column model so that when modal pops up, the form value gets undated based on the column selected
     const moveColModal = document.getElementById("moveColModal");
     let curColumnId;
     if (moveColModal) {
@@ -178,7 +202,7 @@ export function renderBoard(boardId) {
         // and then do the updating in a callback.
 
         // Update the modal's content.
-        const modalTitle = moveColModal.querySelector(".modal-title");
+        const modalTitle = moveColModal.querySelector("#moveColModalLabel");
         const modalBodyInput = moveColModal.querySelector(".modal-body input");
 
         modalTitle.textContent = `Moving column ${curColumnId}`;
@@ -186,6 +210,7 @@ export function renderBoard(boardId) {
       });
     }
 
+    // add event listener to MOVE column -> confirm btn. Data in the select will be sent to the move column api
     const moveColBtn = document.getElementById("move-col-btn");
     moveColBtn.addEventListener("click", (e) => {
       const selectValue = {
@@ -193,7 +218,36 @@ export function renderBoard(boardId) {
       };
       axios
         .patch(`/api/boards/${boardId}/columns/${curColumnId}`, selectValue)
-        .then(renderBoard(boardId))
+        .then((_) => renderBoard(boardId))
+        .catch((err) => console.error(err));
+    });
+
+    // add event listener to the DELETE column model
+    const deleteColModal = document.getElementById("deleteColModal");
+    if (deleteColModal) {
+      deleteColModal.addEventListener("show.bs.modal", (event) => {
+        // Button that triggered the modal
+        const button = event.relatedTarget;
+        console.log(button);
+        // Extract the current column id from data-column-id attributes
+        curColumnId = button.getAttribute("data-column-id");
+        // If necessary, you could initiate an Ajax request here
+        // and then do the updating in a callback.
+
+        // Update the modal's content.
+        const modalTitle = deleteColModal.querySelector("#deleteColModalLabel");
+
+        modalTitle.textContent = `Delete column ${curColumnId}`;
+        // modalBodyInput.value = curColumnId;
+      });
+    }
+
+    // add event listener to DELETE column -> confirm btn. Data in the select will be sent to the delete column api
+    const deleteColBtn = document.getElementById("delete-col-btn");
+    deleteColBtn.addEventListener("click", (e) => {
+      axios
+        .delete(`/api/boards/${boardId}/columns/${curColumnId}`)
+        .then((_) => renderBoard(boardId))
         .catch((err) => console.error(err));
     });
   });
