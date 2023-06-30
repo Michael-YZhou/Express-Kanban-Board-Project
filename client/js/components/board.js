@@ -110,11 +110,15 @@ export function renderBoard(boardId) {
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
         cardElem.classList.add("card_label");
+
         cardElem.addEventListener("click", () => {
           renderCard(boardId, column.column_id, card.card_id);
         });
         cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
-        colElem.appendChild(cardElem);
+
+        const cardMoveButton = document.createElement('button');
+        cardMoveButton.textContent = 'move card';
+        colElem.append(cardElem,cardMoveButton);
       }
       // add the column to columns section
       columnsContainerRow.appendChild(colElem);
