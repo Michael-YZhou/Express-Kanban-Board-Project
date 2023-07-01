@@ -52,7 +52,7 @@ router.post("/", (request, response) => {
       if (user) {
         console.log("internal user" + user);
         response.status(400).json({
-          message: `Email ${request.body.email} or Username ${request.body.name} already exists`,
+          message: `Email ${request.body.email} or username already exists`,
         });
         return;
       }
