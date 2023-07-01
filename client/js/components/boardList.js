@@ -18,6 +18,7 @@ export function renderBoardList() {
 
 function renderUserBoards(board) {
   const el = document.createElement("div");
+
   el.classList.add("board");
 
   const creatorName = document.createElement("h2");

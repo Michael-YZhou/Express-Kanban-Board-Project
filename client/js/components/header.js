@@ -23,24 +23,26 @@ export function renderHeader() {
 function setHeaderHTML(name) {
   const header = document.getElementById("header-nav");
   header.innerHTML = `
-      <h1>Task Management Tool</h1>
-      <ul id="navlist">
-          <li id="home">Home</li>
+      <div class="collapse navbar-collapse justify-content-center">
+      <h1 class="navbar-brand mb-0 fs-1">Kanbanify</h1>
+      <ul id="navlist" class="navbar-nav justify-content-center">
+          <li id="home" class="nav-item active"><p class="nav-link">Home</p></li>
           ${
             name
               ? `
-            <li id="boards">My Boards</li>
-            <li id="add-board">Create New Board</li>
-            Hello ${name}!
-            <li id="logout">Logout</li>
-            <li id="user-profile">Profile</li>
+            <li id="boards" class="nav-item active"><p class="nav-link">My Boards</p></li>
+            <li id="add-board" class="nav-item active"><p class="nav-link">Create New Board</p></li>
+            <li><p class="nav-link">Hello ${name}!</p></li>
+            <li id="logout" class="nav-item active"><p class="nav-link">Logout</p></li>
+            
             `
               : `
-            <li id="signUp">Signup</li>
-            <li id="login">Login</li>
+            <li id="signUp" class="nav-item active"><p class="nav-link">Signup</p></li>
+            <li id="login" class="nav-item active"><p class="nav-link">Login</p></li>
             `
           }
       </ul>
+      </div>
     `;
 
   // add event listener to the header btns.
