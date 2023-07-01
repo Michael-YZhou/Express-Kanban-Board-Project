@@ -466,25 +466,52 @@ router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
 
 //Change the title and description
 router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
-  boardsCollection
-    .findOne({ _id: new ObjectId(request.params.boardId) })
-    .then((board) => {
-      console.log(board);
-      const columnIndex = board.kanban_columns.findIndex(
-        (column) => (column.column_id = request.params.columnId)
-      ); // index of the col = position - 1
-      const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-        (card) => (card.card_id = request.params.cardId)
-      );
-      board.kanban_columns[columnIndex].cards[cardIndex].card_desc =
-        request.body.card_desc;
-      const filter = { _id: new ObjectId(request.params.boardId) };
-      const update = { $set: board };
-      boardsCollection.updateOne(filter, update).then((_) =>
-        response.json({
-          message: `Description has been changedz`,
-        })
-      );
+  const boardId = new ObjectId(request.params.boardId);
+  const columnId = parseInt(request.params.columnId);
+  const cardId = parseInt(request.params.cardId);
+  const { card_title, card_desc } = request.body;
+
+  const filter = {
+    _id: boardId,
+    "kanban_columns.column_id": columnId,
+    "kanban_columns.cards.card_id": cardId
+  };
+
+  const update = {};
+
+  if (card_title && !card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_title": card_title
+    };
+  } else if (!card_title && card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+    };
+  } else if (card_title && card_desc) {
+    update.$set = {
+      "kanban_columns.$[column].cards.$[card].card_title": card_title,
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+    };
+  } else {
+    response.json({ message: "No update fields provided" });
+    return;
+  }
+
+  const options = {
+    arrayFilters: [
+      { "column.column_id": columnId },
+      { "card.card_id": cardId }
+    ]
+  };
+
+  boardsCollection.updateOne(filter, update, options)
+    .then((_) => {
+      response.json({
+        message: "Card details have been updated"
+      });
+    })
+    .catch((error) => {
+      response.json({ message: "Error updating card details" });
     });
 });
 //
