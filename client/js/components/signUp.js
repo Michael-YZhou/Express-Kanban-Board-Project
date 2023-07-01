@@ -21,7 +21,7 @@ export function renderSignUpForm() {
                     <i class="fas fa-user fa-lg me-3 fa-fw"></i>
                     <div class="form-outline flex-fill mb-0">
                       <input type="text" name="name" class="form-control" />
-                      <label class="form-label" for="name">Your Name</label>
+                      <label class="form-label" for="name">Your Username</label>
                     </div>
                   </div>
 
@@ -41,6 +41,14 @@ export function renderSignUpForm() {
                     </div>
                   </div>
 
+                  <div class="d-flex flex-row align-items-center mb-4">
+                  <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                  <div class="form-outline flex-fill mb-0">
+                    <label class="form-label text-danger" id ="error-msg" for="error"></label>
+                  </div>
+                </div>
+                  
+
                   <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                     <button type="submit" class="btn btn-warning btn-lg">Register</button>
                   </div>
@@ -59,11 +67,11 @@ export function renderSignUpForm() {
       </div>
     </div>
   </div>
+
 </section>
     `;
-  const errorMsg = document.createElement("p");
-  errorMsg.id = "error-msg";
-  page.replaceChildren(signupDiv, errorMsg);
+
+  page.replaceChildren(signupDiv);
 
   const form = document.getElementById("signUpForm");
   form.addEventListener("submit", (event) => {
@@ -84,6 +92,7 @@ export function renderSignUpForm() {
         renderBoardList();
       })
       .catch((error) => {
+        let errorMsg = document.getElementById("error-msg");
         errorMsg.textContent = error.response.data.message;
       });
   });

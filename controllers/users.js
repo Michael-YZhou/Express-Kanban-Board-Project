@@ -44,24 +44,29 @@ router.post("/", (request, response) => {
   //     return;
   // }
 
-  usersCollection.findOne({ email: request.body.email }).then((user) => {
-    if (user) {
-      response.status(400).json({
-        message: `user with the email ${request.body.email} already exists`,
-      });
-      return;
-    }
+  usersCollection
+    .findOne({
+      $or: [{ email: request.body.email }, { name: request.body.name }],
+    })
+    .then((user) => {
+      if (user) {
+        console.log("internal user" + user);
+        response.status(400).json({
+          message: `Email ${request.body.email} or username already exists`,
+        });
+        return;
+      }
 
-    usersCollection
-      .insertOne({
-        name: request.body.name,
-        email: request.body.email,
-        passwordHash: passwordHash,
-      })
-      .then((_) => {
-        response.json();
-      });
-  });
+      usersCollection
+        .insertOne({
+          name: request.body.name,
+          email: request.body.email,
+          passwordHash: passwordHash,
+        })
+        .then((_) => {
+          response.json();
+        });
+    });
 });
 
 module.exports = router;
