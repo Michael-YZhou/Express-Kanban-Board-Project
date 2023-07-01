@@ -33,7 +33,7 @@ router.post("/", (request, response) => {
       !user ||
       !bcrypt.compareSync(request.body.password, user.passwordHash)
     ) {
-      response.status(401).json({ message: "incorrect login details" });
+      response.status(401).json({ message: "Incorrect login details" });
       return;
     }
 

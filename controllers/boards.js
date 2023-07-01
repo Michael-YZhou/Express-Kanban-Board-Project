@@ -154,7 +154,7 @@ router.post("/", (request, response) => {
     .catch((err) => console.error(err));
 });
 
-// retrieve a given board from database
+// Retrieve a given board from database
 router.get("/:boardId", (request, response) => {
   boardsCollection
     .findOne({ _id: new ObjectId(request.params.boardId) })
@@ -169,25 +169,13 @@ router.delete("/:boardId", (request, response) => {
   boardsCollection
     .deleteOne({ _id: new ObjectId(request.params.boardId) })
     .then((_) => {
-      response.json();
+      response.json(); // include something to prompt user and ask if they are sure they want to delete
     })
     .catch((err) => console.error(err));
 });
 
 // PUT board
 router.put("/:boardId", (request, response) => {
-  const filter = { _id: new ObjectId(request.params.boardId) };
-  const update = { $set: request.body };
-  boardsCollection
-    .updateOne(filter, update)
-    .then((_) => {
-      response.json();
-    })
-    .catch((err) => console.error(err));
-});
-
-// PATCH board
-router.patch("/:boardId", (request, response) => {
   const filter = { _id: new ObjectId(request.params.boardId) };
   const update = { $set: request.body };
   boardsCollection
