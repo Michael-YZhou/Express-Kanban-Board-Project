@@ -1,51 +1,34 @@
+import { renderAddBoardForm } from "./addBoard.js";
+import { renderBoardList } from "./boardList.js";
+import { renderLoginForm } from "./login.js";
+import { logout } from "./logout.js";
+import { renderSignUpForm } from "./signUp.js";
+import { renderBoard } from "./board.js";
+import { renderUserProfile } from "./userProfile.js";
+
 export function renderHomePage() {
   const page = document.getElementById("page");
   page.innerHTML = `
   <section class="py-5 text-center container">
 <div class="row py-lg-5">
   <div class="col-lg-6 col-md-8 mx-auto">
-    <h1 class="fw-light">About this tool</h1>
-    <p class="lead text-muted">This is a visual collaboration tool that organizes your projects and workflows into boards</p>
+    <h1 class="fw-light">Kanbanify</h1>
+    <h2 class="fw-light">About this tool</h2>
+    <p class="lead text-muted">Optimize team performance by incorporating a visual project management tool into your workflow.
+    </p>
     <p>
-      <a href="#" class="btn btn-warning my-2">Log In</a>
-      <a href="#" class="btn btn-secondary my-2">Sign Up</a>
+    <button type="button" class="btn btn-warning btn-lg btn-block" id="home-login">Log In </button>
+    <button type="button" class="btn btn-secondary btn-lg btn-block" id ="home-signup">Sign Up </button>
     </p>
   </div>
 </div>
 </section>
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-<div class="col">
-  <div class="card shadow-sm">
-    <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
 
-    <div class="card-body">
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-        </div>
-        <small class="text-muted">9 mins</small>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="col">
-  <div class="card shadow-sm">
-    <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-
-    <div class="card-body">
-      <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-        </div>
-        <small class="text-muted">9 mins</small>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
     `;
+  document
+    .querySelector("#home-signup")
+    .addEventListener("click", () => renderSignUpForm());
+  document
+    .querySelector("#home-login")
+    .addEventListener("click", () => renderLoginForm());
 }
