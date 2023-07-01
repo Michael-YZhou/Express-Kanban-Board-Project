@@ -30,8 +30,7 @@ function renderUserBoards(board) {
   const boardDesc = document.createElement("p");
   boardDesc.textContent = board.kanban_desc;
 
-  el.addEventListener("click", () => {
-    // console.log(board._id);
+  boardTitle.addEventListener("click", () => {
     renderBoard(board._id);
   });
 
@@ -53,7 +52,7 @@ function renderUserBoards(board) {
   });
   editDiv.append(editButton);
 
-  // Extension: disable buttons if no logged in user
+  // Disable buttons if no logged in user
   axios
     .get("/api/session")
     .then((_) => {})
@@ -69,12 +68,10 @@ function renderUserBoards(board) {
 function renderEditForm(board) {
   const form = document.createElement("form");
   form.innerHTML = `
-        <label for="name">Name:</label>
-        <input type="text" name="name" value="${board.name}">
+        <label for="title">Title:</label>
+        <input type="text" name="title" value="${board.kanban_title}">
         <label for="description">Description: </label>
-        <input type="text" name="description" value="${board.description}">
-        <label for="address">Address: </label>
-        <input type="text" name="address" value="${board.address}">
+        <input type="text" name="description" value="${board.kanban_desc}">
         <input type="submit">
     `;
 
@@ -83,25 +80,12 @@ function renderEditForm(board) {
     const formData = new FormData(form);
 
     const data = {
-      name: formData.get("name"),
-      description: formData.get("description"),
-      address: formData.get("address"),
+      kanban_title: formData.get("title"),
+      kanban_desc: formData.get("description"),
     };
 
     axios
       .put(`/api/boards/${board._id}`, data)
-      .then((_) => {
-        renderBoardList();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  });
-
-  // Extension (PATCH)
-  form.querySelector('input[name="name"]').addEventListener("blur", (event) => {
-    axios
-      .patch(`/api/boards/${board._id}`, { name: event.target.value })
       .then((_) => {
         renderBoardList();
       })
