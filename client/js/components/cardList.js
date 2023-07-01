@@ -16,19 +16,45 @@ export function renderCard(boardId,columnId,cardId) {
       console.log(board)
       const cardContainer = document.createElement("div");
       cardContainer.id = "card-container"; 
+      cardContainer.classList.add('card');
+      cardContainer.style.width = '36rem';
+      cardContainer.style.height = '36rem';
       // render the header section of the board
             // console.log(board.card);
             const cardInfoContainer = document.createElement('div');
             cardInfoContainer.classList.add('cardsinfo');
-            
-            const cardTitle = document.createElement("h1");
-            cardTitle.textContent = card.card_title;
+            // cardInfoContainer.classList.add('card');
+            // cardInfoContainer.style.width = '36rem';
+            // cardInfoContainer.style.height = '36rem';
 
+
+
+
+            //TODO add some padding and margin to make them looks better!!!!
+            const cardTitle = document.createElement("input");
+            cardTitle.value = card.card_title;
+            cardTitle.style.border = '0px';
+            cardTitle.style.width = '100%';
+            cardTitle.style.fontSize = '20px';
+            cardTitle.style.padding = '5px';
+            cardTitle.addEventListener('focus',()=>{
+              console.log('focus');
+            })
+            cardTitle.addEventListener('keypress',(event)=>{
+              if(event.key.toLowerCase() == 'enter'){
+                console.log('saving new title'+event.target.value)
+              }
+            })
+            cardTitle.addEventListener('blur',()=>{
+              console.log('blur');
+            })
             const titleForm = document.createElement('form');
             titleForm.innerHTML = `
-                  <label for='title'>Change the title here:</label>
-                  <input type='text' name='title'>
-                  <input type='submit'>
+                  <div class="form-floating">
+                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="width:350px;" required></textarea>
+                    <label for="floatingTextarea">Change Title</label>
+                    <button type='submit' class="btn btn-primary btn-sm">Save</button>
+                  </div>
               `;
 
             titleForm.addEventListener("submit", (event) => {
@@ -57,22 +83,24 @@ export function renderCard(boardId,columnId,cardId) {
                 });
             });
             const cardCreator = document.createElement('p');
-            cardCreator.textContent = card.card_creator;
+            cardCreator.textContent = `Creator:${card.card_creator}`;
 
             const cardMembers = document.createElement('p');
-            cardMembers.textContent = card.card_members;
+            cardMembers.textContent = `Member:${card.card_members}`;
             
-            const cardDescription = document.createElement('p');
-            cardDescription.textContent = card.card_desc;
+            const cardDescription = document.createElement('h2');
+            cardDescription.textContent = `Description:`;
 
             const errorMessage = document.createElement('p');
             errorMessage.classList.add('error-message');
             
             const descriptionForm = document.createElement('form');
             descriptionForm.innerHTML = `
-                <label for='description'>Description here:</label>
-                <input type='text' name='description'>
-                <input type='submit'>
+                <div class="form-floating">
+                    <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea" style="width:550px;"></textarea>
+                    <label for="floatingTextarea">${card.card_desc}</label>
+                    <input type='submit'>
+                </div>
             `;
 
             descriptionForm.addEventListener("submit", (event) => {
@@ -134,8 +162,8 @@ export function renderCard(boardId,columnId,cardId) {
                       commentForm.innerHTML = `
                         <label for="edit-comment">Edit Comment:</label>
                         <input type="text" name="edit-comment" required>
-                        <button type="submit">Save</button>
-                        <button type="button" id="cancel-button">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        <button type="button"  class="btn btn-primary btn-sm" id="cancel-button">Cancel</button>
                       `;
 
                       // 绑定表单的提交事件处理程序
@@ -203,12 +231,16 @@ export function renderCard(boardId,columnId,cardId) {
                 commentContent.appendChild(commentElement);
               }
             }
-            
+            // const commentDiv = document.createElement('div');
+            // commentDiv.classList.add("form-floating");
+            // const textArea =document.createElement('textarea')
             const commentForm = document.createElement('form');
             commentForm.innerHTML=`
-                <label for='comment'>Give some comments</label>
-                <input type='text' name='comment'>
-                <input type='submit'>
+                <div class="form-floating">
+                  <textarea class="form-control" name="comment" placeholder="Leave a comment here" id="floatingTextarea2" style="width:550px;height: 100px"></textarea>
+                  <label for="floatingTextarea2">Comments</label>
+                  <input type='submit'>
+                </div>
             `
             commentForm.addEventListener('submit',(e)=>{
               e.preventDefault();
