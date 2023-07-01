@@ -135,6 +135,7 @@ export function renderCard(boardId,columnId,cardId) {
                         <label for="edit-comment">Edit Comment:</label>
                         <input type="text" name="edit-comment" required>
                         <button type="submit">Save</button>
+                        <button type="button" id="cancel-button">Cancel</button>
                       `;
 
                       // 绑定表单的提交事件处理程序
@@ -151,6 +152,16 @@ export function renderCard(boardId,columnId,cardId) {
                         // 移除表单元素
                         commentElement.removeChild(commentForm);
                       });
+
+                        // 获取取消按钮元素
+                        const cancelButton = commentForm.querySelector('#cancel-button');
+
+                        // 绑定取消按钮的点击事件处理程序
+                        cancelButton.addEventListener('click', () => {
+                          // 移除表单元素
+                          commentElement.removeChild(commentForm);
+                        });
+
 
                       // 将表单添加到评论元素中
                       commentElement.appendChild(commentForm);
