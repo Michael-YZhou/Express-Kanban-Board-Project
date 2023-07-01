@@ -21,7 +21,7 @@ export function renderLoginForm() {
                   <p>Please login to your account</p>
                   <div class="form-outline mb-4">
                     <input type="email"  class="form-control" placeholder="Email address" name="email" />
-                    <label class="form-label" for="form2Example11">Username</label>
+                    <label class="form-label" for="username">Username</label>
                   </div>
 
                   <div class="form-outline mb-4">
@@ -29,9 +29,14 @@ export function renderLoginForm() {
                     <label class="form-label" for="form2Example22">Password</label>
                   </div>
 
+
+                  <div class="form-outline mb-4">
+                  <label class="form-label text-danger" id="error-msg-login" for="error"></label>
+                </div>
+
                   <div class="text-center pt-1 mb-5 pb-1">
                     <button class="btn btn-warning btn-block fa-lg" type="submit">Log in</button>
-                    <a class="text-muted" href="#!">Forgot password?</a>
+                    <a class="text-muted" href="#!">Forgot password?</a> 
                   </div>
 
                   <div class="d-flex align-items-center justify-content-center pb-4">
@@ -69,9 +74,15 @@ export function renderLoginForm() {
       password: formData.get("password"),
     };
 
-    axios.post("/api/session", data).then((_) => {
-      renderHeader();
-      renderBoardList();
-    });
+    axios
+      .post("/api/session", data)
+      .then((_) => {
+        renderHeader();
+        renderBoardList();
+      })
+      .catch((error) => {
+        let errorMsg = document.getElementById("error-msg-login");
+        errorMsg.textContent = error.response.data.message;
+      });
   });
 }
