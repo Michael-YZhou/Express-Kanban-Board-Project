@@ -18,7 +18,8 @@ export function renderBoardList() {
 
 function renderUserBoards(board) {
   const el = document.createElement("div");
-  el.classList.add("board");
+
+  el.classList.add("card shadow-sm");
 
   const creatorName = document.createElement("h2");
   creatorName.textContent = board.kanban_creator;
