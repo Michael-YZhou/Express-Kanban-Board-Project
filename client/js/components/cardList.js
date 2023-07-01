@@ -33,6 +33,7 @@ export function renderCard(boardId,columnId,cardId) {
             //TODO add some padding and margin to make them looks better!!!!
             const cardTitle = document.createElement("input");
             cardTitle.value = card.card_title;
+            cardTitle.name = 'title';
             cardTitle.style.border = '0px';
             cardTitle.style.width = '100%';
             cardTitle.style.fontSize = '20px';
@@ -42,46 +43,68 @@ export function renderCard(boardId,columnId,cardId) {
             })
             cardTitle.addEventListener('keypress',(event)=>{
               if(event.key.toLowerCase() == 'enter'){
-                console.log('saving new title'+event.target.value)
-              }
+                // console.log('saving new title'+event.target.value)
+                event.preventDefault();
+                const title = event.target.value;
+              
+                // 判断输入内容是否为空
+                if (title.trim() === '') {
+                  // 输入内容为空，执行相应操作（例如显示错误消息）
+                  errorMessage.textContent = 'Title is empty';
+                  titleForm.appendChild(errorMessage);
+                  return;
+                }
+              
+                const data = {
+                  card_title: title
+                };
+              
+                axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
+                  .then(() => {
+                    renderCard(boardId, columnId, cardId);
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+                }
             })
             cardTitle.addEventListener('blur',()=>{
               console.log('blur');
             })
-            const titleForm = document.createElement('form');
-            titleForm.innerHTML = `
-                  <div class="form-floating">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="width:350px;" required></textarea>
-                    <label for="floatingTextarea">Change Title</label>
-                    <button type='submit' class="btn btn-primary btn-sm">Save</button>
-                  </div>
-              `;
+            // const titleForm = document.createElement('form');
+            // titleForm.innerHTML = `
+            //       <div class="form-floating">
+            //         <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="width:350px;" required></textarea>
+            //         <label for="floatingTextarea">Change Title</label>
+            //         <button type='submit' class="btn btn-primary btn-sm">Save</button>
+            //       </div>
+            //   `;
 
-            titleForm.addEventListener("submit", (event) => {
-              event.preventDefault();
-              const formData = new FormData(titleForm);
-              const title = formData.get('title');
+            // titleForm.addEventListener("submit", (event) => {
+            //   event.preventDefault();
+            //   const formData = new FormData(titleForm);
+            //   const title = formData.get('title');
             
-              // 判断输入内容是否为空
-              if (title.trim() === '') {
-                // 输入内容为空，执行相应操作（例如显示错误消息）
-                errorMessage.textContent = 'Title is empty';
-                titleForm.appendChild(errorMessage);
-                return;
-              }
+            //   // 判断输入内容是否为空
+            //   if (title.trim() === '') {
+            //     // 输入内容为空，执行相应操作（例如显示错误消息）
+            //     errorMessage.textContent = 'Title is empty';
+            //     titleForm.appendChild(errorMessage);
+            //     return;
+            //   }
             
-              const data = {
-                card_title: title
-              };
+            //   const data = {
+            //     card_title: title
+            //   };
             
-              axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
-                .then(() => {
-                  renderCard(boardId, columnId, cardId);
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
-            });
+            //   axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
+            //     .then(() => {
+            //       renderCard(boardId, columnId, cardId);
+            //     })
+            //     .catch((error) => {
+            //       console.log(error);
+            //     });
+            // });
             const cardCreator = document.createElement('p');
             cardCreator.textContent = `Creator:${card.card_creator}`;
 
@@ -256,7 +279,7 @@ export function renderCard(boardId,columnId,cardId) {
                 renderCard(boardId,columnId,cardId)
               })
             })
-            cardInfoContainer.append(cardTitle,titleForm,cardCreator,cardMembers,cardDescription,descriptionForm,commentContent,commentForm);
+            cardInfoContainer.append(cardTitle,cardCreator,cardMembers,cardDescription,descriptionForm,commentContent,commentForm);
 
             const deleteCardButton = document.createElement('button');
             deleteCardButton.textContent = 'Delete the card';
