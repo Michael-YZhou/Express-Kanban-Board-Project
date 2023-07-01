@@ -201,7 +201,7 @@ router.patch("/:boardId", (request, response) => {
 /******************************** columns apis ******************************* */
 // Add a new column
 // takes the board ID from param, take column title from request body {"title": string}
-router.put("/:boardId/columns", (request, response) => {
+router.post("/:boardId/columns", (request, response) => {
   // retrieve the specific board which the new column is added to using board id
   boardsCollection
     .findOne({
@@ -231,9 +231,11 @@ router.put("/:boardId/columns", (request, response) => {
 // Delete a column (takes the board ID and the column ID from param)
 router.delete("/:boardId/columns/:columnId", (request, response) => {
   boardsCollection
-    .updateOne({ _id: new ObjectId(request.params.boardId) })
+    .findOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
-      const indexToRemove = request.params.columnId - 1; // index of the col = position - 1
+      const indexToRemove = board.kanban_columns.findIndex(
+        (column) => column.column_id === request.params.columnId
+      );
       console.log(board);
       // remove the element at the position
       board.kanban_columns.splice(indexToRemove, 1);
@@ -474,23 +476,23 @@ router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
   const filter = {
     _id: boardId,
     "kanban_columns.column_id": columnId,
-    "kanban_columns.cards.card_id": cardId
+    "kanban_columns.cards.card_id": cardId,
   };
 
   const update = {};
 
   if (card_title && !card_desc) {
     update.$set = {
-      "kanban_columns.$[column].cards.$[card].card_title": card_title
+      "kanban_columns.$[column].cards.$[card].card_title": card_title,
     };
   } else if (!card_title && card_desc) {
     update.$set = {
-      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc,
     };
   } else if (card_title && card_desc) {
     update.$set = {
       "kanban_columns.$[column].cards.$[card].card_title": card_title,
-      "kanban_columns.$[column].cards.$[card].card_desc": card_desc
+      "kanban_columns.$[column].cards.$[card].card_desc": card_desc,
     };
   } else {
     response.json({ message: "No update fields provided" });
@@ -500,14 +502,15 @@ router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
   const options = {
     arrayFilters: [
       { "column.column_id": columnId },
-      { "card.card_id": cardId }
-    ]
+      { "card.card_id": cardId },
+    ],
   };
 
-  boardsCollection.updateOne(filter, update, options)
+  boardsCollection
+    .updateOne(filter, update, options)
     .then((_) => {
       response.json({
-        message: "Card details have been updated"
+        message: "Card details have been updated",
       });
     })
     .catch((error) => {
