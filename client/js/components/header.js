@@ -25,6 +25,7 @@ function setHeaderHTML(name) {
   header.innerHTML = `
       <div class="collapse navbar-collapse justify-content-center">
       <h1 class="navbar-brand mb-0 fs-1">Kanbanify</h1>
+      
       <ul id="navlist" class="navbar-nav justify-content-center">
           <li id="home" class="nav-item active"><p class="nav-link">Home</p></li>
           ${
