@@ -10,6 +10,7 @@ export function renderCard(boardId,columnId,cardId) {
     const paragraph = document.createComment("p");
     paragraph.textContent = "Loading";
     page.replaceChildren(paragraph);
+  //Use Promise all to get the data from database.
   Promise.all([
     axios.get(`/api/session`),
     axios.get(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`)
@@ -19,25 +20,29 @@ export function renderCard(boardId,columnId,cardId) {
       const sessionEmail = session.data.name;
 
       const card = board.data;
-      console.log(board)
+      // console.log(board)
       const cardContainer = document.createElement("div");
+      //Css for cardContainer
       cardContainer.id = "card-container"; 
-      // cardContainer.classList.add('card');
       cardContainer.style.width = '36rem';
       cardContainer.style.height = '36rem';
       // render the header section of the board
             const cardInfoContainer = document.createElement('div');
             cardInfoContainer.classList.add('cardsinfo');
 
-            //TODO add some padding and margin to make them looks better!!!!
+            //Use input element to set up focus and blur
             const cardTitle = document.createElement("input");
             cardTitle.value = card.card_title;
             cardTitle.name = 'title';
+            //Css for cardTitle
+            cardTitle.required = true;
             cardTitle.style.border = '0px';
             cardTitle.style.width = '100%';
             cardTitle.style.fontSize = '30px';
             cardTitle.style.padding = '10px';
             cardTitle.style.fontStyle = 'border';
+            //Css end
+            //Using focus and keypress to change the card title
             cardTitle.addEventListener('focus',()=>{
               console.log('focus');
             })
@@ -46,14 +51,6 @@ export function renderCard(boardId,columnId,cardId) {
                 // console.log('saving new title'+event.target.value)
                 event.preventDefault();
                 const title = event.target.value;
-              
-                // 判断输入内容是否为空
-                if (title.trim() === '') {
-                  // 输入内容为空，执行相应操作（例如显示错误消息）
-                  errorMessage.textContent = 'Title is empty';
-                  titleForm.appendChild(errorMessage);
-                  return;
-                }
               
                 const data = {
                   card_title: title
@@ -122,11 +119,11 @@ export function renderCard(boardId,columnId,cardId) {
               const formData = new FormData(descriptionForm);
               const description = formData.get('description');
             
-              // 判断输入内容是否为空
+              //Check if description is empty or not
               if (description.trim() === '') {
-                // 输入内容为空，执行相应操作（例如显示错误消息）
+                // input is empty return 'Add a more detailed description'
                 const data = {
-                    card_desc: 'Add a more detailed description'
+                    card_desc: card.card_desc
                   }
                   axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
                   .then(() => {
@@ -136,7 +133,7 @@ export function renderCard(boardId,columnId,cardId) {
                     console.log(error);
                   });
                 }
-            
+              //or return input value
               const data = {
                 card_desc: description
               };
@@ -168,17 +165,15 @@ export function renderCard(boardId,columnId,cardId) {
             
                 const commentElement = document.createElement('div');
                 commentElement.classList.add('comment');
-                // commentElement.style.border = '1px solid black';
-                // commentElement.style.minHeight='40px';
-                // commentElement.style.marginBottom = '5px';
+
             
-                // 添加评论内容
+                // Comment info section
                 const commentInfo = document.createElement('span');
                 commentInfo.textContent = `${commentName}: ${commentDetail} ${createTime}`;
             
                 commentElement.appendChild(commentInfo);
     
-                  // 判断是否存在 comment_id，并添加编辑和删除按钮
+                  // To determine is a comment or a log if it is comment you will have some Edit and delete buttons also a border
                   if ('comment_id' in comment) {
                     commentElement.style.border = '1px solid black';
                     commentElement.style.minHeight='40px';
@@ -189,7 +184,7 @@ export function renderCard(boardId,columnId,cardId) {
                     editButton.style.margin='4px';
                     commentId = comment.comment_id
                     console.log(commentId);
-                    // 绑定编辑按钮的事件处理程序
+                    // Edit button work function
                     editButton.addEventListener('click', () => {
                       commentId = comment.comment_id
                       console.log(commentId);
@@ -201,7 +196,7 @@ export function renderCard(boardId,columnId,cardId) {
                         <button type="button"  class="btn btn-outline-secondary btn-sm" id="cancel-button">Cancel</button>
                       `;
 
-                      // 绑定表单的提交事件处理程序
+                      //Save changed comment function
                       commentForm.addEventListener('submit', (event) => {
                         event.preventDefault();
                         commentId = comment.comment_id
@@ -209,41 +204,39 @@ export function renderCard(boardId,columnId,cardId) {
                         const formData = new FormData(commentForm);
                         const editedComment = formData.get('edit-comment');
 
-                        // 调用更新函数，传递相关参数和编辑后的评论内容
+                        // update the edited comments
                         updateComment(boardId, columnId, cardId, commentId, editedComment);
 
-                        // 移除表单元素
+                        // after sumbit remove the edit comments sections
                         commentElement.removeChild(commentForm);
                       });
 
-                        // 获取取消按钮元素
+                        // cancel button
                         const cancelButton = commentForm.querySelector('#cancel-button');
 
-                        // 绑定取消按钮的点击事件处理程序
+                        // if you dont wanna change the comment it will closed the form
                         cancelButton.addEventListener('click', () => {
-                          // 移除表单元素
                           commentElement.removeChild(commentForm);
                         });
 
 
-                      // 将表单添加到评论元素中
+                      //commentform append to the body
                       commentElement.appendChild(commentForm);
                     });
 
-                  // 更新评论的函数
+                  // update the comment
                   function updateComment(boardId, columnId, cardId, commentId, editedComment) {
-                    // 构建要发送的数据对象
+                    // send the data
                     const data = {
                       comment_content: editedComment
                     };
 
-                    // 发送 Axios PUT 请求
                     axios.put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}/comments/${commentId}`, data)
                       .then(() => {
-                        renderCard(boardId,columnId,cardId); // 处理成功响应
+                        renderCard(boardId,columnId,cardId); //return to renderCard page
                       })
                       .catch((error) => {
-                        console.log(error); // 处理错误
+                        console.log(error); //handle error
                       });
                   }
 
@@ -252,7 +245,7 @@ export function renderCard(boardId,columnId,cardId) {
                   deleteButton.textContent = 'Delete';
                   deleteButton.style.margin='4px';
                   deleteButton.classList.add('btn','btn-outline-danger','btn-sm');
-                  // 绑定删除按钮的事件处理程序
+                  // delete button for delete comment
                   deleteButton.addEventListener('click',()=>{
                     commentId = comment.comment_id
                     console.log(commentId);

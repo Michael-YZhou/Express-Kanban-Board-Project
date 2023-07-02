@@ -1,23 +1,29 @@
 import { renderBoard } from "./board.js";
-
+//initialise some vailables to be used later
 let name;
 let email;
 let column;
 let columnTitle;
-
+/*
+The renderAddCardForm function takes boardId and columnId as parameters, 
+which are used to fetch session data and the board data from the server.
+*/
 export function renderAddCardForm(boardId, columnId) {
   const heading = document.createElement("h1");
-
+  /*
+  Inside the function, an axios Promise.all is used to make two asynchronous requests to the server: 
+  one to get the session data (axios.get("/api/session")) and another to get the board data (axios.get("/api/boards/${boardId}")).
+  */
   Promise.all([
     axios.get(`/api/session`),
     axios.get(`/api/boards/${boardId}`)
   ])
+    //Once both requests are resolved, the response data is destructured using array destructuring: [sessionResponse, boardResponse]
     .then(([sessionResponse, boardResponse]) => {
-      // 处理会话响应
+      //The session data (name and email) and the column data (column and columnTitle) are extracted from the response data.
       name = sessionResponse.data.name;
       email = sessionResponse.data.email;
 
-      // 处理列响应
       column = boardResponse.data.kanban_columns.find((column)=>{
         return column.column_id == columnId
       });
@@ -25,10 +31,10 @@ export function renderAddCardForm(boardId, columnId) {
       console.log(columnTitle)
       heading.textContent = `Please add card, ${name}`;
 
-      // 进一步操作和渲染表单的代码
+      //Set page by getElementById
       const page = document.getElementById("page");
-      // 进一步操作和渲染表单的代码
-  
+
+      //Set a form to get data from client side and update to server
       const form = document.createElement("form");
       form.innerHTML = `
             <label for="title">Title:</label>
@@ -46,16 +52,22 @@ export function renderAddCardForm(boardId, columnId) {
         const formData = new FormData(form);
         const currentTime = new Date();
         const formattedTime = currentTime.toLocaleString();
+        let cardDecs = formData.get("description");
+          if (cardDecs.trim() === '') {
+            // input is empty return 'Add a more detailed description'
+                cardDecs = 'Add a more detailed description';
+            }
+
         const comment = {
           comment_creator: name,
           comment_create_time: formattedTime,
-          comment_content: ` created this card to ${columnTitle} at`, // 添加其他评论相关的内容
+          comment_content: ` created this card to ${columnTitle} at`,
         };
         const data = {
           card_title: formData.get("title"),
           card_creator: name,
           card_members: [name],
-          card_desc: formData.get("description"),
+          card_desc: cardDecs,
           card_comment: [comment]
         };
         console.log(data);
@@ -71,7 +83,7 @@ export function renderAddCardForm(boardId, columnId) {
       });
     })
     .catch((error) => {
-      // 处理任何错误
+      //If an error occurs during the request, an error message is displayed based on the error response status.
       name = "there is an error";
     });
   }   

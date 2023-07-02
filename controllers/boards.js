@@ -280,32 +280,58 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
 /********************************* columns finished ******************************** */
 
 /******************************** cards apis ******************************* */
+
+/*
+The code you provided is a route handler for a GET request that retrieves a specific card from a board in a Kanban system.
+
+The route path is defined as /:boardId/columns/:columnId/cards/:cardId,
+which expects the board ID, column ID, and card ID as route parameters.
+*/
 router.get("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
+  //The boardsCollection.findOne() method is used to find the board document in the database based on the provided board ID.
   boardsCollection
     .findOne({ _id: new ObjectId(req.params.boardId) })
     .then((board) => {
-      console.log(board);
+      // console.log(board);
+      /*
+      Once the board document is retrieved, the code finds the index of the column
+      within the kanban_columns array using the column ID.
+      */
       const columnIndex = board.kanban_columns.findIndex(
         (column) => column.column_id == req.params.columnId
-      ); // index of the col = position - 1
+      )
+      //Next, the code finds the index of the card within the cards array of the specified column using the card ID.
       const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
         (card) => card.card_id == req.params.cardId
       );
+      //the response is sent with the JSON representation of the retrieved card from the board.
       res.json(board.kanban_columns[columnIndex].cards[cardIndex]);
     });
 });
 
+/*
+Add a new card
+
+The code you provided is a route handler for a POST request that adds a new card to a specific column in a board in a Kanban system.
+The route path is defined as /:boardId/columns/:columnId, which expects the board ID and column ID as route parameters.
+*/
 router.post("/:boardId/columns/:columnId", (request, response) => {
-  // retrieve the specific board which the new column is added to using board id
+  //The boardsCollection.findOne() method is used to find the board document in the database based on the provided board ID.
   boardsCollection
     .findOne({
       _id: new ObjectId(request.params.boardId),
     })
     .then((board) => {
-      // filter the required column
+      // Once the board document is retrieved, the code accesses the specified column using the column ID.
       const column = request.params.columnId;
       console.log(request.body.data);
-      // add a new column to the json data
+      /*
+      Add a new card to column
+      A new card object is created using the data from the request body.
+      The card ID is incremented from the board's card_id property, 
+      and other properties such as card_title, card_desc, card_creator, card_members, and card_comment are extracted from the request body.
+      The new card object is pushed to the cards array of the specified column.
+      */
       board.kanban_columns[column].cards.push({
         card_id: board.card_id,
         card_title: request.body.card_title,
@@ -314,20 +340,27 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
         card_members: request.body.card_members,
         card_comment: request.body.card_comment,
       });
-      // update the column id tracker
+      //The card_id property of the board is incremented to maintain uniqueness for future cards.
       board.card_id += 1;
       console.log(board);
-      // store the updated json data in database
+      //The updated board document is stored back in the database using the boardsCollection.updateOne() method.
       const filter = { _id: new ObjectId(request.params.boardId) };
       const update = { $set: board };
       boardsCollection.updateOne(filter, update).then((_) => {
+        //Once the update is complete, a JSON response is sent with a success message.
         response.json({ message: "a new card has been added to the board" });
       });
     })
     .catch((err) => console.error(err));
 });
 
-// takes the board ID from param, take column title from request body {"title": string}
+/*
+The code you provided is a route handler for a PATCH request that moves a card from one column to another within a Kanban board.
+
+The route path is defined as /:boardId/columns/:curColumnId/cards/:curCardId, which expects the board ID, current column ID, and current card ID as route parameters.
+The request body is expected to contain the column_id property, which represents the target column ID where the card will be moved.
+The code retrieves the board document from the database using the provided board ID.
+*/
 router.patch(
   "/:boardId/columns/:curColumnId/cards/:curCardId",
   async (req, res) => {
@@ -344,49 +377,64 @@ router.patch(
         _id: new ObjectId(boardId),
       });
       console.log(board);
+      //It initializes a removedCard variable to store the details of the card being moved.
       let removedCard;
+      //It iterates over the columns of the board and finds the current column and card based on their IDs.
       board.kanban_columns.forEach((column) => {
         if (column.column_id == curColumnId) {
           console.log(column);
           column.cards.forEach((card) => {
             if (card.card_id == curCardId) {
-              removedCard = { ...card }; // 复制卡片内容
+              //Once the card is found, its details are copied to the removedCard variable.
+              removedCard = { ...card }; 
             }
           });
         }
       });
-      console.log(removedCard);
-
+      // console.log(removedCard);
+      //The card is removed from the current column using the $pull operator in the boardsCollection.findOneAndUpdate() method.
       await boardsCollection.findOneAndUpdate(
         { _id: new ObjectId(boardId), "kanban_columns.column_id": curColumnId },
         { $pull: { "kanban_columns.$[].cards": { card_id: curCardId } } },
         { returnOriginal: false }
       );
-      // "kanban_columns.column_id": targetColumnId
+      // The card is added to the target column using the $push operator and the arrayFilters option to filter the specific column based on its ID.
+      //The board document is updated in the database using the boardsCollection.findOneAndUpdate() method.
       await boardsCollection.findOneAndUpdate(
         { _id: new ObjectId(boardId) },
         { $push: { "kanban_columns.$[column].cards": removedCard } },
         { arrayFilters: [{ "column.column_id": parseInt(targetColumnId) }] },
         { returnOriginal: false }
       );
-
-      res.sendStatus(200); // 返回成功状态码
+      //If the operations are successful, a status code of 200 (OK) is sent in the response.
+      res.sendStatus(200); 
     } catch (error) {
+      //Otherwise, a status code of 500 (Internal Server Error) is sent.
       console.error(error);
-      res.sendStatus(500); // 返回服务器错误状态码
+      res.sendStatus(500); 
     }
   }
 );
 
-//delete card
+/*
+Delete card
+The code you provided is a route handler for a DELETE request that deletes a card from a specific column within a Kanban board. 
+
+The route path is defined as /:boardId/columns/:columnId/cards/:cardId, which expects the board ID, column ID, 
+and card ID as route parameters.
+The board ID is converted to a MongoDB ObjectId using the ObjectId class from the appropriate driver or ORM.
+The card ID is parsed as an integer using parseInt() to ensure it is in the correct format.
+*/
 router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
   const boardId = new ObjectId(req.params.boardId);
   const cardId = parseInt(req.params.cardId);
-
+  //The boardsCollection.updateOne() method is called to update the board document in the database.
   boardsCollection
     .updateOne(
-      { _id: boardId }, // 根据文档的 `_id` 进行匹配
-      { $pull: { "kanban_columns.$[].cards": { card_id: cardId } } } // 从 `kanban_columns.cards` 数组中移除具有指定 `card_id` 的元素
+      //The first parameter of updateOne() specifies the query to match the board document based on its _id.
+      { _id: boardId },
+      //The second parameter uses the $pull operator to remove an element from the kanban_columns.cards array that has the specified card_id.
+      { $pull: { "kanban_columns.$[].cards": { card_id: cardId } } } 
     )
     .then(() => {
       res.json({ message: "Card deleted successfully" });
@@ -396,79 +444,37 @@ router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
     });
 });
 
-// a card to a different position
-// the destination position should be provided in request body {"toPosition": int}
-// router.patch(
-//   "/:boardId/columns/:columnId/cards/:cardId",
-//   (request, response) => {
-//     // retrieve the board from the db
-//     boardsCollection
-//       .findOne({ _id: new ObjectId(request.params.boardId) })
-//       .then((board) => {
-//         const curPosition = board.kanban_columns.card.findIndex(
-//           (card) => card.card_id === request.params.cardId
-//         ); // index of the col = position - 1
-//         const newPosition = request.body.toPosition - 1;
-//         // move the selected column to the new index
-//         board.kanban_columns.card = arrayMove(
-//           board.kanban_columns.card,
-//           curPosition,
-//           newPosition
-//         );
-//         console.log(board);
-//         // update the database
-//         const filter = { _id: new ObjectId(request.params.boardId) };
-//         const update = { $set: board };
-//         boardsCollection.updateOne(filter, update).then((_) =>
-//           response.json({
-//             message: `Column ${curPosition} has been moved to position ${newPosition}`,
-//           })
-//         );
-//       })
-//       .catch((err) => console.error(err));
-//     //
-//   }
-// );
 
-//cards description updates
-// router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
-//   boardsCollection
-//     .findOne({ _id: new ObjectId(request.params.boardId) })
-//     .then((board) => {
-//       console.log(board);
-//       const columnIndex = board.kanban_columns.findIndex(
-//         (column) => column.column_id == request.params.columnId
-//       );
-//       const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
-//         (card) => card.card_id == request.params.cardId
-//       );
-//       board.kanban_columns[columnIndex].cards[cardIndex].card_desc =
-//         request.body.card_desc;
-//       const filter = { _id: new ObjectId(request.params.boardId) };
-//       const update = { $set: board };
-//       boardsCollection.updateOne(filter, update).then((_) =>
-//         response.json({
-//           message: `Description has been changedz`,
-//         })
-//       );
-//     });
-// });
+/*
+Change title and description
 
-//Change the title and description
+The code you provided is a route handler for a PUT request that updates the details of a specific card within a Kanban board.
+*/
 router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
+/*
+The code you provided is a route handler for a PUT request that updates the details of a specific card within a Kanban board. 
+The route path is defined as /:boardId/columns/:columnId/cards/:cardId, 
+which expects the board ID, column ID, and card ID as route parameters.
+The board ID is converted to a MongoDB ObjectId using the ObjectId class from the appropriate driver or ORM.
+The column ID and card ID are parsed as integers using parseInt() to ensure they are in the correct format
+*/
   const boardId = new ObjectId(request.params.boardId);
   const columnId = parseInt(request.params.columnId);
   const cardId = parseInt(request.params.cardId);
+  //The desired updates for the card's title and description are extracted from the request body using destructuring assignment: 
   const { card_title, card_desc } = request.body;
-
+  //A filter object is created to match the board document in the database. The filter specifies the board ID, column ID, and card ID.
   const filter = {
     _id: boardId,
     "kanban_columns.column_id": columnId,
     "kanban_columns.cards.card_id": cardId,
   };
-
+  //An empty update object is created.
   const update = {};
-
+  /*
+  Based on the presence of card_title and card_desc, 
+  the update object is populated with the appropriate $set operation to update the card's title, description, or both.
+  */
   if (card_title && !card_desc) {
     update.$set = {
       "kanban_columns.$[column].cards.$[card].card_title": card_title,
@@ -483,6 +489,10 @@ router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
       "kanban_columns.$[column].cards.$[card].card_desc": card_desc,
     };
   } else {
+    /*
+    If none of the fields (card_title and card_desc) are provided, 
+    a response with a message indicating that no update fields were provided is sent.
+    */
     response.json({ message: "No update fields provided" });
     return;
   }
@@ -508,18 +518,29 @@ router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
 //
 /********************************* cards finished ******************************** */
 
-/********************************* comment finished ******************************** */
+/********************************* comment start ******************************** */
+
+/*
+Change comment 
+The code you provided is a route handler for a PUT request that updates the content of a specific comment within a card in a Kanban board.\
+The route path is defined as /:boardId/columns/:columnId/cards/:cardId/comments/:commentId, 
+which expects the board ID, column ID, card ID, and comment ID as route parameters.
+*/
 router.put(
   "/:boardId/columns/:columnId/cards/:cardId/comments/:commentId",
   (req, res) => {
+    //The board ID, column ID, card ID, and comment ID are extracted from the request parameters:
     const boardId = req.params.boardId;
     const columnId = req.params.columnId;
     const cardId = req.params.cardId;
     const commentId = req.params.commentId;
+    //The new comment content is extracted from the request body: 
     const newCommentContent = req.body.comment_content;
 
-    // 更新数据库中的 comment_content
+    //A filter object is created to match the board document in the database. 
+    //The filter specifies the board ID, column ID, card ID, and comment ID using $[column], $[card], and $[comment] placeholders.
     boardsCollection
+      //The boardsCollection.updateOne() method is called to update the board document in the database.
       .updateOne(
         {
           _id: new ObjectId(boardId),
@@ -527,12 +548,14 @@ router.put(
           "kanban_columns.cards.card_id": parseInt(cardId),
           "kanban_columns.cards.card_comment.comment_id": parseInt(commentId),
         },
+        //An update object is created using the $set operator to update the comment_content field of the specified comment.
         {
           $set: {
             "kanban_columns.$[column].cards.$[card].card_comment.$[comment].comment_content":
               newCommentContent,
           },
         },
+        //The arrayFilters option is set to match the specific column, card, and comment within the array of columns, cards, and comments, respectively.
         {
           arrayFilters: [
             { "column.column_id": parseInt(columnId) },
@@ -550,6 +573,11 @@ router.put(
   }
 );
 
+/*
+Delete comment
+
+Same way used on put method
+*/
 router.delete(
   "/:boardId/columns/:columnId/cards/:cardId/comments/:commentId",
   (req, res) => {
@@ -583,6 +611,8 @@ router.delete(
   }
 );
 
+
+//Add new comment section same way with Add card post mthod
 router.post(
   "/:boardId/columns/:columnId/cards/:cardId",
   (request, response) => {
@@ -595,11 +625,11 @@ router.post(
         // filter the required column
         const columnIndex = board.kanban_columns.findIndex(
           (column) => column.column_id == request.params.columnId
-        ); // index of the col = position - 1
+        ); 
         const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
           (card) => card.card_id == request.params.cardId
         );
-        // add a new column to the json data
+        // add a new comment to the json data
         const commentSection =
           board.kanban_columns[columnIndex].cards[cardIndex].card_comment;
 
@@ -609,7 +639,7 @@ router.post(
           comment_create_time: request.body.comment_create_time,
           comment_content: request.body.comment_content,
         });
-        // update the column id tracker
+        // update the comment id tracker
         board.comment_id += 1;
         console.log(board);
         // store the updated json data in database

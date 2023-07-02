@@ -158,6 +158,7 @@ export function renderBoard(boardId) {
         const cardTitle = document.createElement("input");
         cardTitle.value = card.card_title;
         cardTitle.name = 'title';
+        cardTitle.required = true;
         cardTitle.style.border = '0px';
         cardTitle.style.width = '100%';
         cardTitle.style.fontSize = '20px';
@@ -171,14 +172,6 @@ export function renderBoard(boardId) {
             // console.log('saving new title'+event.target.value)
             event.preventDefault();
             const title = event.target.value;
-          
-            // 判断输入内容是否为空
-            if (title.trim() === '') {
-              // 输入内容为空，执行相应操作（例如显示错误消息）
-              errorMessage.textContent = 'Title is empty';
-              titleForm.appendChild(errorMessage);
-              return;
-            }
           
             const data = {
               card_title: title
@@ -196,7 +189,6 @@ export function renderBoard(boardId) {
         cardTitle.addEventListener('blur',()=>{
           console.log('blur');
         })
-        // cardElem.insertAdjacentHTML("beforeend", `<p>${cardTitle}</p>`); // display card title
         const buttonGroup = document.createElement('div');
         buttonGroup.classList.add('btn-group');
         buttonGroup.setAttribute('role','group');
