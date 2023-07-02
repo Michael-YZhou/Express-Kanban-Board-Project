@@ -2,7 +2,18 @@ import { renderBoard } from "./board.js";
 
 export function renderBoardList() {
   const page = document.getElementById("page");
-  page.classList.add("row");
+  const projectContainer = document.createElement("div");
+  projectContainer.classList.add(
+    "row",
+    "row-cols-1",
+    "row-cols-md-3",
+    "g-4",
+    "justify-content-center",
+    "h-50",
+    "p-5"
+  );
+  projectContainer.style = "background-color: #eee;";
+
   const paragraph = document.createElement("p");
   paragraph.textContent = "Loading";
   page.replaceChildren(paragraph);
@@ -10,18 +21,20 @@ export function renderBoardList() {
   axios.get("/api/boards").then((response) => {
     let listElements = [];
 
+    page.replaceChildren(projectContainer);
     for (let board of response.data) {
       listElements.push(renderUserBoards(board));
     }
-    page.replaceChildren(...listElements);
+    projectContainer.replaceChildren(...listElements);
   });
 }
 
 function renderUserBoards(board) {
   const el = document.createElement("div");
+
   el.innerHTML = `
-  <div class="col-sm-3">
-    <div class="card">
+  <div class="col">
+    <div class="card h-100 d-flex align-items-center justify-content-center">
       <div class="card-body">
         <h5 class="card-title">${board.kanban_title}</h5>
         <p class="card-text">${board.kanban_desc}.</p>
@@ -38,18 +51,20 @@ function renderUserBoards(board) {
         <h1 class="modal-title fs-5" >Edit Board</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id= "edit-form-${board._id}">
+      <form class = "mx-1 mx-md-4"id="edit-form-${board._id}">
       <div class="modal-body">
-        
-          <label for="title">Title:</label>
-          <input type="text" name="title" value="${board.kanban_title}">
-          <label for="description">Description: </label>
-          <input type="text" name="description" value="${board.kanban_desc}">
-        
+        <div class="d-flex flex-row align-items-center mb-4">
+            <label class="form-label" for="title">Title:</label>'
+            <input class ="form-control" type="text" name="title" value="${board.kanban_title}">
+        </div>
+      <div class="d-flex flex-row align-items-center mb-4">
+          <label class="form-label" for="description"> Description: </label>
+          <input class= "form-control" type="text" name="description" value="${board.kanban_desc}">
+      </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Save changes</button>
+        <button type="submit" class="btn btn-warning" data-bs-dismiss="modal" >Save changes</button>
         </form>
       </div>
     </div>
@@ -73,7 +88,6 @@ function renderUserBoards(board) {
   const editButton = el.querySelector(`#edit-${board._id}`);
   editButton.addEventListener("click", () => {
     renderEditForm(board, el);
-    console.log("edit button pressed");
   });
 
   // Disable buttons if no logged in user
