@@ -140,7 +140,7 @@ export function renderCard(boardId,columnId,cardId) {
                 <div class="form-floating">
                     <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea" style="width:550px;"></textarea>
                     <label for="floatingTextarea">${card.card_desc}</label>
-                    <button type='submit' class="btn btn-outline-primary btn-sm" id="cancel-button"> Save </button>
+                    <button style="margin: 4px;" type='submit' class="btn btn-outline-primary btn-sm" id="cancel-button"> Save </button>
                 </div>
             `;
 
@@ -198,6 +198,7 @@ export function renderCard(boardId,columnId,cardId) {
                     const editButton = document.createElement('button');
                     editButton.textContent = 'Edit';
                     editButton.classList.add('btn','btn-outline-warning','btn-sm');
+                    editButton.style.margin='4px';
                     commentId = comment.comment_id
                     console.log(commentId);
                     // 绑定编辑按钮的事件处理程序
@@ -261,6 +262,7 @@ export function renderCard(boardId,columnId,cardId) {
             
                   const deleteButton = document.createElement('button');
                   deleteButton.textContent = 'Delete';
+                  deleteButton.style.margin='4px';
                   deleteButton.classList.add('btn','btn-outline-danger','btn-sm');
                   // 绑定删除按钮的事件处理程序
                   deleteButton.addEventListener('click',()=>{
@@ -285,7 +287,7 @@ export function renderCard(boardId,columnId,cardId) {
                 <div class="form-floating">
                   <textarea class="form-control" name="comment" placeholder="Leave a comment here" id="floatingTextarea2" style="width:550px;height: 100px"></textarea>
                   <label for="floatingTextarea2">Comments</label>
-                  <button type='submit' class="btn btn-outline-primary btn-sm">Save</button>
+                  <button style="margin: 4px;" type='submit' class="btn btn-outline-primary btn-sm">Save</button>
                 </div>
             `
             commentForm.addEventListener('submit',(e)=>{
@@ -306,9 +308,9 @@ export function renderCard(boardId,columnId,cardId) {
             
             const buttonGroup = document.createElement('div');
             buttonGroup.style.display = 'flex';
-            buttonGroup.style.flexDirection = 'spacebetween';
             const deleteCardButton = document.createElement('button');
             deleteCardButton.classList.add("btn", "btn-outline-danger");
+            deleteCardButton.style.margin='4px';
             deleteCardButton.textContent = 'Delete the card';
             deleteCardButton.addEventListener(('click'),()=>{
               axios.delete(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((_)=>{
@@ -318,6 +320,7 @@ export function renderCard(boardId,columnId,cardId) {
 
             const backToColumnButton = document.createElement('button');
             backToColumnButton.textContent = 'Go back';
+            backToColumnButton.style.margin='4px';
             backToColumnButton.classList.add("btn","btn-outline-success")
             backToColumnButton.addEventListener(('click'),()=>{
               axios.get(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((_)=>{
