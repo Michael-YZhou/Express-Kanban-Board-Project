@@ -222,8 +222,9 @@ router.delete("/:boardId/columns/:columnId", (request, response) => {
     .findOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
       const indexToRemove = board.kanban_columns.findIndex(
-        (column) => column.column_id === request.params.columnId
+        (column) => column.column_id === Number(request.params.columnId)
       );
+      console.log(indexToRemove);
       console.log(board);
       // remove the element at the position
       board.kanban_columns.splice(indexToRemove, 1);
@@ -299,7 +300,7 @@ router.get("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
       */
       const columnIndex = board.kanban_columns.findIndex(
         (column) => column.column_id == req.params.columnId
-      )
+      );
       //Next, the code finds the index of the card within the cards array of the specified column using the card ID.
       const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
         (card) => card.card_id == req.params.cardId
@@ -386,7 +387,7 @@ router.patch(
           column.cards.forEach((card) => {
             if (card.card_id == curCardId) {
               //Once the card is found, its details are copied to the removedCard variable.
-              removedCard = { ...card }; 
+              removedCard = { ...card };
             }
           });
         }
@@ -407,11 +408,11 @@ router.patch(
         { returnOriginal: false }
       );
       //If the operations are successful, a status code of 200 (OK) is sent in the response.
-      res.sendStatus(200); 
+      res.sendStatus(200);
     } catch (error) {
       //Otherwise, a status code of 500 (Internal Server Error) is sent.
       console.error(error);
-      res.sendStatus(500); 
+      res.sendStatus(500);
     }
   }
 );
@@ -434,7 +435,7 @@ router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
       //The first parameter of updateOne() specifies the query to match the board document based on its _id.
       { _id: boardId },
       //The second parameter uses the $pull operator to remove an element from the kanban_columns.cards array that has the specified card_id.
-      { $pull: { "kanban_columns.$[].cards": { card_id: cardId } } } 
+      { $pull: { "kanban_columns.$[].cards": { card_id: cardId } } }
     )
     .then(() => {
       res.json({ message: "Card deleted successfully" });
@@ -444,14 +445,13 @@ router.delete("/:boardId/columns/:columnId/cards/:cardId", (req, res) => {
     });
 });
 
-
 /*
 Change title and description
 
 The code you provided is a route handler for a PUT request that updates the details of a specific card within a Kanban board.
 */
 router.put("/:boardId/columns/:columnId/cards/:cardId", (request, response) => {
-/*
+  /*
 The code you provided is a route handler for a PUT request that updates the details of a specific card within a Kanban board. 
 The route path is defined as /:boardId/columns/:columnId/cards/:cardId, 
 which expects the board ID, column ID, and card ID as route parameters.
@@ -461,7 +461,7 @@ The column ID and card ID are parsed as integers using parseInt() to ensure they
   const boardId = new ObjectId(request.params.boardId);
   const columnId = parseInt(request.params.columnId);
   const cardId = parseInt(request.params.cardId);
-  //The desired updates for the card's title and description are extracted from the request body using destructuring assignment: 
+  //The desired updates for the card's title and description are extracted from the request body using destructuring assignment:
   const { card_title, card_desc } = request.body;
   //A filter object is created to match the board document in the database. The filter specifies the board ID, column ID, and card ID.
   const filter = {
@@ -534,10 +534,10 @@ router.put(
     const columnId = req.params.columnId;
     const cardId = req.params.cardId;
     const commentId = req.params.commentId;
-    //The new comment content is extracted from the request body: 
+    //The new comment content is extracted from the request body:
     const newCommentContent = req.body.comment_content;
 
-    //A filter object is created to match the board document in the database. 
+    //A filter object is created to match the board document in the database.
     //The filter specifies the board ID, column ID, card ID, and comment ID using $[column], $[card], and $[comment] placeholders.
     boardsCollection
       //The boardsCollection.updateOne() method is called to update the board document in the database.
@@ -611,7 +611,6 @@ router.delete(
   }
 );
 
-
 //Add new comment section same way with Add card post mthod
 router.post(
   "/:boardId/columns/:columnId/cards/:cardId",
@@ -625,7 +624,7 @@ router.post(
         // filter the required column
         const columnIndex = board.kanban_columns.findIndex(
           (column) => column.column_id == request.params.columnId
-        ); 
+        );
         const cardIndex = board.kanban_columns[columnIndex].cards.findIndex(
           (card) => card.card_id == request.params.cardId
         );

@@ -17,7 +17,7 @@ export function renderBoard(boardId) {
 
     /************************* Section 1 - Create Board Header Section *************************/
     const boardHeaderNavHTML = `
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">${board.kanban_title}</a>
         <button
@@ -71,36 +71,32 @@ export function renderBoard(boardId) {
     boardContainer.insertAdjacentHTML("beforeend", boardHeaderNavHTML);
 
     /******************* Section 2 - Create the Columns Section of the Board Page ******************/
-    // this is a bootstrap container for the entire column section
+
+    //  this is the container for all columns/lists, it's a flex box
     const columnsContainer = document.createElement("div");
-    columnsContainer.id = "columns-container";
-    columnsContainer.classList = "container test-center";
+    columnsContainer.classList =
+      "d-flex gap-3 flex-nowrap overflow-scroll text-center";
 
-    //  this is a bootstrap row that contains all columns
-    const columnsContainerRow = document.createElement("div");
-    columnsContainerRow.id = "columns-container-row";
-    columnsContainerRow.classList = "row test-center";
-
-    // create column elements and append to the columns section
+    // create a column element for every list and append to the columns container
     for (let column of board.kanban_columns) {
       const colElem = document.createElement("div");
-      // each column has the bootstrap col class
-      colElem.classList = "col";
+      colElem.classList = "col-3 card";
 
+      // column header section is a flex box
       const colHeader = document.createElement("div");
-      colHeader.className = "column-header";
+      colHeader.classList =
+        "card-header d-flex justify-content-between align-items-center";
 
-      // col title and the dropdown menu will be appened to colHeader,
-      // colHeader will be appended to colElem
+      // col title and the dropdown menu is inside the column Header, column Header is appended to colElem
       const columnTitle = document.createElement("div");
-      columnTitle.innerHTML = `<p>${column.column_title}</p>`;
+      columnTitle.textContent = column.column_title;
 
       // this is the dropdown menu for column actions (bootstrap used)
       const dropDown = document.createElement("div");
       dropDown.className = "dropdown";
 
       const dropDownBtn = document.createElement("button");
-      dropDownBtn.setAttribute("class", "btn btn-secondary dropdown-toggle");
+      dropDownBtn.setAttribute("class", "btn btn-secondary btn-sm");
       dropDownBtn.setAttribute("type", "button");
       dropDownBtn.setAttribute("data-bs-toggle", "dropdown");
       dropDownBtn.setAttribute("aria-expanded", "false");
@@ -110,7 +106,7 @@ export function renderBoard(boardId) {
       const dropDownList = document.createElement("ul");
       dropDownList.className = "dropdown-menu";
 
-      // create the dropdown list items
+      // create the dropdown list items (3 btns)
       const addCardBtn = document.createElement("li");
       addCardBtn.setAttribute("id", "add-card");
       addCardBtn.setAttribute("class", "dropdown-item");
@@ -153,69 +149,77 @@ export function renderBoard(boardId) {
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
         cardElem.classList.add("card");
-        cardElem.style.width = '15rem';
+        cardElem.style.width = "100%";
 
         const cardTitle = document.createElement("input");
         cardTitle.value = card.card_title;
-        cardTitle.name = 'title';
+        cardTitle.name = "title";
         cardTitle.required = true;
-        cardTitle.style.border = '0px';
-        cardTitle.style.width = '100%';
-        cardTitle.style.fontSize = '20px';
-        cardTitle.style.padding = '10px';
-        cardTitle.style.fontStyle = 'border';
-        cardTitle.addEventListener('focus',()=>{
-          console.log('focus');
-        })
-        cardTitle.addEventListener('keypress',(event)=>{
-          if(event.key.toLowerCase() == 'enter'){
+        cardTitle.style.border = "0px";
+        cardTitle.style.width = "100%";
+        cardTitle.style.fontSize = "20px";
+        cardTitle.style.padding = "10px";
+        cardTitle.style.fontStyle = "border";
+        cardTitle.addEventListener("focus", () => {
+          console.log("focus");
+        });
+        cardTitle.addEventListener("keypress", (event) => {
+          if (event.key.toLowerCase() == "enter") {
             // console.log('saving new title'+event.target.value)
             event.preventDefault();
             const title = event.target.value;
-          
+
             const data = {
-              card_title: title
+              card_title: title,
             };
-          
-            axios.put(`/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`, data)
+
+            axios
+              .put(
+                `/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`,
+                data
+              )
               .then(() => {
                 renderBoard(boardId);
               })
               .catch((error) => {
                 console.log(error);
               });
-            }
-        })
-        cardTitle.addEventListener('blur',()=>{
-          console.log('blur');
-        })
-        const buttonGroup = document.createElement('div');
-        buttonGroup.classList.add('btn-group');
-        buttonGroup.setAttribute('role','group');
-        buttonGroup.setAttribute('aria-label','Basic example');
-        
-        const editCardButton = document.createElement('button');
-        editCardButton.textContent = 'Edit';
-        editCardButton.setAttribute('type','button');
-        editCardButton.classList.add('btn','btn-outline-warning');
-        editCardButton.addEventListener('click',()=>{
-          renderCard(boardId, column.column_id, card.card_id);
-        })
+          }
+        });
+        cardTitle.addEventListener("blur", () => {
+          console.log("blur");
+        });
+        const buttonGroup = document.createElement("div");
+        buttonGroup.classList.add("btn-group");
+        buttonGroup.setAttribute("role", "group");
+        buttonGroup.setAttribute("aria-label", "Basic example");
 
-        const deleteCardButton = document.createElement('button');
-        deleteCardButton.textContent= 'Delete';
-        deleteCardButton.setAttribute('type','button');
-        deleteCardButton.classList.add('btn','btn-outline-danger');
-        deleteCardButton.addEventListener('click',()=>{
-          axios.delete(`/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`).then((_)=>{
-            renderBoard(boardId);
-          })
-        })
+        const editCardButton = document.createElement("button");
+        editCardButton.textContent = "Edit";
+        editCardButton.setAttribute("type", "button");
+        editCardButton.classList.add("btn", "btn-outline-warning");
+        editCardButton.addEventListener("click", () => {
+          renderCard(boardId, column.column_id, card.card_id);
+        });
+
+        const deleteCardButton = document.createElement("button");
+        deleteCardButton.textContent = "Delete";
+        deleteCardButton.setAttribute("type", "button");
+        deleteCardButton.classList.add("btn", "btn-outline-danger");
+        deleteCardButton.addEventListener("click", () => {
+          axios
+            .delete(
+              `/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`
+            )
+            .then((_) => {
+              renderBoard(boardId);
+            });
+        });
 
         const cardMoveButton = document.createElement("button");
         cardMoveButton.textContent = "move";
-        cardMoveButton.setAttribute('type','button');
-        cardMoveButton.classList.add('btn','btn-outline-success');
+        cardMoveButton.setAttribute("type", "button");
+        cardMoveButton.classList.add("btn", "btn-outline-success");
         cardMoveButton.addEventListener("click", () => {
           const cardMoveContainer = document.createElement("div");
           const curColumnId = column.column_id;
@@ -230,14 +234,14 @@ export function renderBoard(boardId) {
           // Create the sumbit button
           const submitButton = document.createElement("button");
           submitButton.textContent = "Move";
-          submitButton.classList.add('btn','btn-outline-primary','btn-sm')
+          submitButton.classList.add("btn", "btn-outline-primary", "btn-sm");
 
           const cancelButton = document.createElement("button");
           cancelButton.textContent = "Cancel";
-          cancelButton.classList.add('btn','btn-outline-secondary','btn-sm'),
-          cardMoveContainer.append(selectElement, submitButton, cancelButton);
+          cancelButton.classList.add("btn", "btn-outline-secondary", "btn-sm"),
+            cardMoveContainer.append(selectElement, submitButton, cancelButton);
           cardElem.appendChild(cardMoveContainer);
-          
+
           cancelButton.addEventListener("click", () => {
             cardMoveContainer.removeChild(selectElement);
             cardMoveContainer.removeChild(submitButton);
@@ -246,36 +250,35 @@ export function renderBoard(boardId) {
 
           submitButton.addEventListener("click", () => {
             const targetColumnId = selectElement.value;
-            moveCard(boardId, curColumnId, curCardId, targetColumnId);       
+            moveCard(boardId, curColumnId, curCardId, targetColumnId);
             cardMoveContainer.removeChild(selectElement);
             cardMoveContainer.removeChild(submitButton);
             cardMoveContainer.removeChild(cancelButton);
 
-            function moveCard(boardId, curColumnId, curCardId, targetColumnId) {            
+            function moveCard(boardId, curColumnId, curCardId, targetColumnId) {
               axios
                 .patch(
                   `/api/boards/${boardId}/columns/${curColumnId}/cards/${curCardId}`,
                   { column_id: targetColumnId }
                 )
                 .then(() => {
-                  renderBoard(boardId); 
+                  renderBoard(boardId);
                 })
                 .catch((error) => {
-                  console.log(error); 
+                  console.log(error);
                 });
             }
           });
         });
-        buttonGroup.append(editCardButton,deleteCardButton,cardMoveButton);
-        cardElem.append(cardTitle,buttonGroup);
+        buttonGroup.append(editCardButton, deleteCardButton, cardMoveButton);
+        cardElem.append(cardTitle, buttonGroup);
         colElem.append(cardElem);
       }
       // add the column to columns section
-      columnsContainerRow.appendChild(colElem);
+      columnsContainer.appendChild(colElem);
     }
 
     // append the whole columns section to the board container
-    columnsContainer.appendChild(columnsContainerRow);
     boardContainer.appendChild(columnsContainer);
 
     /************************* Section 3 - Creating Bootstrap Modals *************************/
