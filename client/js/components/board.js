@@ -152,16 +152,78 @@ export function renderBoard(boardId) {
       // create and append the cards to the column div
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
-        cardElem.classList.add("card_label");
+        cardElem.classList.add("card");
+        cardElem.style.width = '15rem';
 
-        cardElem.addEventListener("click", () => {
+        const cardTitle = document.createElement("input");
+        cardTitle.value = card.card_title;
+        cardTitle.name = 'title';
+        cardTitle.style.border = '0px';
+        cardTitle.style.width = '100%';
+        cardTitle.style.fontSize = '20px';
+        cardTitle.style.padding = '10px';
+        cardTitle.style.fontStyle = 'border';
+        cardTitle.addEventListener('focus',()=>{
+          console.log('focus');
+        })
+        cardTitle.addEventListener('keypress',(event)=>{
+          if(event.key.toLowerCase() == 'enter'){
+            // console.log('saving new title'+event.target.value)
+            event.preventDefault();
+            const title = event.target.value;
+          
+            // 判断输入内容是否为空
+            if (title.trim() === '') {
+              // 输入内容为空，执行相应操作（例如显示错误消息）
+              errorMessage.textContent = 'Title is empty';
+              titleForm.appendChild(errorMessage);
+              return;
+            }
+          
+            const data = {
+              card_title: title
+            };
+          
+            axios.put(`/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`, data)
+              .then(() => {
+                renderBoard(boardId);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+            }
+        })
+        cardTitle.addEventListener('blur',()=>{
+          console.log('blur');
+        })
+        // cardElem.insertAdjacentHTML("beforeend", `<p>${cardTitle}</p>`); // display card title
+        const buttonGroup = document.createElement('div');
+        buttonGroup.classList.add('btn-group');
+        buttonGroup.setAttribute('role','group');
+        buttonGroup.setAttribute('aria-label','Basic example');
+        
+        const editCardButton = document.createElement('button');
+        editCardButton.textContent = 'Edit';
+        editCardButton.setAttribute('type','button');
+        editCardButton.classList.add('btn','btn-outline-warning');
+        editCardButton.addEventListener('click',()=>{
           renderCard(boardId, column.column_id, card.card_id);
-        });
-        cardElem.insertAdjacentHTML("beforeend", `<p>${card.card_title}</p>`); // display card title
+        })
+
+        const deleteCardButton = document.createElement('button');
+        deleteCardButton.textContent= 'Delete';
+        deleteCardButton.setAttribute('type','button');
+        deleteCardButton.classList.add('btn','btn-outline-danger');
+        deleteCardButton.addEventListener('click',()=>{
+          axios.delete(`/api/boards/${boardId}/columns/${column.column_id}/cards/${card.card_id}`).then((_)=>{
+            renderBoard(boardId);
+          })
+        })
 
         const cardMoveButton = document.createElement("button");
-        cardMoveButton.textContent = "move card";
-        cardMoveButton.classList.add("cardmovebutton");
+        cardMoveButton.textContent = "move";
+        cardMoveButton.setAttribute('type','button');
+        cardMoveButton.classList.add('btn','btn-outline-success');
         cardMoveButton.addEventListener("click", () => {
           const cardMoveContainer = document.createElement("div");
           const curColumnId = column.column_id;
@@ -173,15 +235,17 @@ export function renderBoard(boardId) {
             optionElement.textContent = column.column_title;
             selectElement.appendChild(optionElement);
           }
-          // 创建提交按钮
+          // Create the sumbit button
           const submitButton = document.createElement("button");
           submitButton.textContent = "Move";
+          submitButton.classList.add('btn','btn-outline-primary','btn-sm')
 
           // 创建取消按钮
           const cancelButton = document.createElement("button");
           cancelButton.textContent = "Cancel";
+          cancelButton.classList.add('btn','btn-outline-secondary','btn-sm'),
           cardMoveContainer.append(selectElement, submitButton, cancelButton);
-          colElem.appendChild(cardMoveContainer);
+          cardElem.appendChild(cardMoveContainer);
           // 绑定取消按钮的点击事件处理程序
           cancelButton.addEventListener("click", () => {
             // 从父元素中移除选择元素和按钮
@@ -218,7 +282,9 @@ export function renderBoard(boardId) {
             }
           });
         });
-        colElem.append(cardElem, cardMoveButton);
+        buttonGroup.append(editCardButton,deleteCardButton,cardMoveButton);
+        cardElem.append(cardTitle,buttonGroup);
+        colElem.append(cardElem);
       }
       // add the column to columns section
       columnsContainerRow.appendChild(colElem);
