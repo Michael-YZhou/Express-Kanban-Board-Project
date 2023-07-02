@@ -232,44 +232,36 @@ export function renderBoard(boardId) {
           submitButton.textContent = "Move";
           submitButton.classList.add('btn','btn-outline-primary','btn-sm')
 
-          // 创建取消按钮
           const cancelButton = document.createElement("button");
           cancelButton.textContent = "Cancel";
           cancelButton.classList.add('btn','btn-outline-secondary','btn-sm'),
           cardMoveContainer.append(selectElement, submitButton, cancelButton);
           cardElem.appendChild(cardMoveContainer);
-          // 绑定取消按钮的点击事件处理程序
+          
           cancelButton.addEventListener("click", () => {
-            // 从父元素中移除选择元素和按钮
             cardMoveContainer.removeChild(selectElement);
             cardMoveContainer.removeChild(submitButton);
             cardMoveContainer.removeChild(cancelButton);
           });
 
-          // 绑定提交按钮的点击事件处理程序
           submitButton.addEventListener("click", () => {
             const targetColumnId = selectElement.value;
-
-            // 调用移动卡片的函数，将卡片从当前列移动到目标列
-            moveCard(boardId, curColumnId, curCardId, targetColumnId);
-
-            // 从父元素中移除选择元素和按钮
+            moveCard(boardId, curColumnId, curCardId, targetColumnId);       
             cardMoveContainer.removeChild(selectElement);
             cardMoveContainer.removeChild(submitButton);
             cardMoveContainer.removeChild(cancelButton);
 
-            function moveCard(boardId, curColumnId, curCardId, targetColumnId) {
-              // 发送 Axios PATCH 请求来更新卡片的所属列信息
+            function moveCard(boardId, curColumnId, curCardId, targetColumnId) {            
               axios
                 .patch(
                   `/api/boards/${boardId}/columns/${curColumnId}/cards/${curCardId}`,
                   { column_id: targetColumnId }
                 )
                 .then(() => {
-                  renderBoard(boardId); // 处理成功响应
+                  renderBoard(boardId); 
                 })
                 .catch((error) => {
-                  console.log(error); // 处理错误
+                  console.log(error); 
                 });
             }
           });
