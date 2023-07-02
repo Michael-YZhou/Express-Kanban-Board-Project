@@ -22,7 +22,7 @@ export function renderCard(boardId,columnId,cardId) {
       console.log(board)
       const cardContainer = document.createElement("div");
       cardContainer.id = "card-container"; 
-      cardContainer.classList.add('card');
+      // cardContainer.classList.add('card');
       cardContainer.style.width = '36rem';
       cardContainer.style.height = '36rem';
       // render the header section of the board
@@ -154,9 +154,11 @@ export function renderCard(boardId,columnId,cardId) {
             
 
             const commentContainer = document.createElement('div');
+        
             
             const commentContent = document.createElement('p');
             console.log(card.card_comment);
+            
             
             if (Array.isArray(card.card_comment)) {
               for (const comment of card.card_comment) {
@@ -166,6 +168,9 @@ export function renderCard(boardId,columnId,cardId) {
             
                 const commentElement = document.createElement('div');
                 commentElement.classList.add('comment');
+                // commentElement.style.border = '1px solid black';
+                // commentElement.style.minHeight='40px';
+                // commentElement.style.marginBottom = '5px';
             
                 // 添加评论内容
                 const commentInfo = document.createElement('span');
@@ -175,6 +180,9 @@ export function renderCard(boardId,columnId,cardId) {
     
                   // 判断是否存在 comment_id，并添加编辑和删除按钮
                   if ('comment_id' in comment) {
+                    commentElement.style.border = '1px solid black';
+                    commentElement.style.minHeight='40px';
+                    commentElement.style.marginBottom = '5px';
                     const editButton = document.createElement('button');
                     editButton.textContent = 'Edit';
                     editButton.classList.add('btn','btn-outline-warning','btn-sm');
