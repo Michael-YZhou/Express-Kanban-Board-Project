@@ -224,6 +224,7 @@ router.delete("/:boardId/columns/:columnId", (request, response) => {
       const indexToRemove = board.kanban_columns.findIndex(
         (column) => column.column_id === Number(request.params.columnId)
       );
+      console.log(indexToRemove);
       console.log(board);
       // remove the element at the position
       board.kanban_columns.splice(indexToRemove, 1);

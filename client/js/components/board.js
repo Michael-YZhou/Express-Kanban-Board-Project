@@ -17,7 +17,7 @@ export function renderBoard(boardId) {
 
     /************************* Section 1 - Create Board Header Section *************************/
     const boardHeaderNavHTML = `
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">${board.kanban_title}</a>
         <button
@@ -71,36 +71,32 @@ export function renderBoard(boardId) {
     boardContainer.insertAdjacentHTML("beforeend", boardHeaderNavHTML);
 
     /******************* Section 2 - Create the Columns Section of the Board Page ******************/
-    // this is a bootstrap container for the entire column section
+
+    //  this is the container for all columns/lists, it's a flex box
     const columnsContainer = document.createElement("div");
-    columnsContainer.id = "columns-container";
-    columnsContainer.classList = "container text-center";
+    columnsContainer.classList =
+      "d-flex gap-3 flex-nowrap overflow-scroll text-center";
 
-    //  this is a bootstrap row that contains all columns
-    const columnsContainerRow = document.createElement("div");
-    columnsContainerRow.id = "columns-container-row";
-    columnsContainerRow.classList = "row text-center";
-
-    // create column elements and append to the columns section
+    // create a column element for every list and append to the columns container
     for (let column of board.kanban_columns) {
       const colElem = document.createElement("div");
-      // each column has the bootstrap col class
-      colElem.classList = "col";
+      colElem.classList = "col-3 card";
 
+      // column header section is a flex box
       const colHeader = document.createElement("div");
-      colHeader.className = "column-header";
+      colHeader.classList =
+        "card-header d-flex justify-content-between align-items-center";
 
-      // col title and the dropdown menu will be appened to colHeader,
-      // colHeader will be appended to colElem
+      // col title and the dropdown menu is inside the column Header, column Header is appended to colElem
       const columnTitle = document.createElement("div");
-      columnTitle.innerHTML = `<p>${column.column_title}</p>`;
+      columnTitle.textContent = column.column_title;
 
       // this is the dropdown menu for column actions (bootstrap used)
       const dropDown = document.createElement("div");
       dropDown.className = "dropdown";
 
       const dropDownBtn = document.createElement("button");
-      dropDownBtn.setAttribute("class", "btn btn-secondary dropdown-toggle");
+      dropDownBtn.setAttribute("class", "btn btn-secondary btn-sm");
       dropDownBtn.setAttribute("type", "button");
       dropDownBtn.setAttribute("data-bs-toggle", "dropdown");
       dropDownBtn.setAttribute("aria-expanded", "false");
@@ -110,7 +106,7 @@ export function renderBoard(boardId) {
       const dropDownList = document.createElement("ul");
       dropDownList.className = "dropdown-menu";
 
-      // create the dropdown list items
+      // create the dropdown list items (3 btns)
       const addCardBtn = document.createElement("li");
       addCardBtn.setAttribute("id", "add-card");
       addCardBtn.setAttribute("class", "dropdown-item");
@@ -153,7 +149,7 @@ export function renderBoard(boardId) {
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
         cardElem.classList.add("card");
-        cardElem.style.width = "15rem";
+        cardElem.style.width = "100%";
 
         const cardTitle = document.createElement("input");
         cardTitle.value = card.card_title;
@@ -279,11 +275,10 @@ export function renderBoard(boardId) {
         colElem.append(cardElem);
       }
       // add the column to columns section
-      columnsContainerRow.appendChild(colElem);
+      columnsContainer.appendChild(colElem);
     }
 
     // append the whole columns section to the board container
-    columnsContainer.appendChild(columnsContainerRow);
     boardContainer.appendChild(columnsContainer);
 
     /************************* Section 3 - Creating Bootstrap Modals *************************/
