@@ -26,16 +26,38 @@ function renderUserBoards(board) {
         <h5 class="card-title">${board.kanban_title}</h5>
         <p class="card-text">${board.kanban_desc}.</p>
         <button class="btn btn-warning" id="open-${board._id}">Open</button>
-        <button class="btn btn-secondary" id="edit-${board._id}">Edit</button>
+        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-${board._id}" id="edit-${board._id}">Edit</button>
         <button class="btn btn-warning" id="delete-${board._id}">Delete</button>
       </div>
     </div>
   </div>
-
+  <div class="modal fade" id="modal-${board._id}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" >Edit Board</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id= "edit-form-${board._id}">
+      <div class="modal-body">
+        
+          <label for="title">Title:</label>
+          <input type="text" name="title" value="${board.kanban_title}">
+          <label for="description">Description: </label>
+          <input type="text" name="description" value="${board.kanban_desc}">
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" >Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
   `;
-  console.log("this is inner asd" + el.innerHTML);
+
   let openBoard = el.querySelector(`#open-${board._id}`);
-  console.log(`internal log ${openBoard}`);
   openBoard.addEventListener("click", () => {
     renderBoard(board._id);
   });
@@ -50,7 +72,8 @@ function renderUserBoards(board) {
 
   const editButton = el.querySelector(`#edit-${board._id}`);
   editButton.addEventListener("click", () => {
-    renderEditForm(board);
+    renderEditForm(board, el);
+    console.log("edit button pressed");
   });
 
   // Disable buttons if no logged in user
@@ -64,16 +87,8 @@ function renderUserBoards(board) {
   return el;
 }
 
-function renderEditForm(board) {
-  const form = document.createElement("form");
-  // I want the form to be a modal
-  form.innerHTML = `
-        <label for="title">Title:</label>
-        <input type="text" name="title" value="${board.kanban_title}">
-        <label for="description">Description: </label>
-        <input type="text" name="description" value="${board.kanban_desc}">
-        <input type="submit">
-    `;
+function renderEditForm(board, el) {
+  let form = el.querySelector(`#edit-form-${board._id}`);
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -93,6 +108,4 @@ function renderEditForm(board) {
         console.log(error);
       });
   });
-
-  document.getElementById(`edit-${board._id}`).replaceChildren(form);
 }
