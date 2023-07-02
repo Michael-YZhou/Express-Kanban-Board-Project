@@ -75,33 +75,34 @@ export function renderAddBoardForm() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const formData = new FormData(form);
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleString();
 
     const data = {
       kanban_title: formData.get("title"),
       kanban_creator: name,
       kanban_members: [name],
       kanban_desc: formData.get("description"),
-      column_id: 0,
-      card_id: 0,
+      column_id: 1,
+      card_id: 1,
       comment_id: 0,
       kanban_columns: [
         {
-          column_id: 1,
+          column_id: 0,
           column_title: "Column 1",
           // each column contains multiple cards/tasks
           cards: [
             {
-              card_id: 1,
+              card_id: 0,
               card_title: "Card Title 1",
-              card_desc: "Card Description.",
-              card_creator: "Card Creator",
-              card_members: ["Member 1", "Member 2"],
+              card_desc: "More detail about this card..",
+              card_creator: name,
+              card_members: [name],
               card_comment: [
                 {
-                  comment_creator: "Comment Creator",
-                  comment_create_time: "",
-                  comment_edit_time: "",
-                  comment_content: "Comment content",
+                  comment_creator: name,
+                  comment_create_time: formattedTime,
+                  comment_content: "create this card as a default card at",
                 },
               ],
             },
