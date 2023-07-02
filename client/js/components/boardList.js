@@ -2,6 +2,7 @@ import { renderBoard } from "./board.js";
 
 export function renderBoardList() {
   const page = document.getElementById("page");
+  page.classList.add("row");
   const paragraph = document.createElement("p");
   paragraph.textContent = "Loading";
   page.replaceChildren(paragraph);
@@ -18,24 +19,28 @@ export function renderBoardList() {
 
 function renderUserBoards(board) {
   const el = document.createElement("div");
+  el.innerHTML = `
+  <div class="col-sm-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">${board.kanban_title}</h5>
+        <p class="card-text">${board.kanban_desc}.</p>
+        <button class="btn btn-warning" id="open-${board._id}">Open</button>
+        <button class="btn btn-secondary" id="edit-${board._id}">Edit</button>
+        <button class="btn btn-warning" id="delete-${board._id}">Delete</button>
+      </div>
+    </div>
+  </div>
 
-  el.classList.add("board");
-
-  const creatorName = document.createElement("h2");
-  creatorName.textContent = board.kanban_creator;
-
-  const boardTitle = document.createElement("h3");
-  boardTitle.textContent = board.kanban_title;
-
-  const boardDesc = document.createElement("p");
-  boardDesc.textContent = board.kanban_desc;
-
-  boardTitle.addEventListener("click", () => {
+  `;
+  console.log("this is inner asd" + el.innerHTML);
+  let openBoard = el.querySelector(`#open-${board._id}`);
+  console.log(`internal log ${openBoard}`);
+  openBoard.addEventListener("click", () => {
     renderBoard(board._id);
   });
 
-  const deleteButton = document.createElement("button");
-  deleteButton.textContent = "Delete";
+  const deleteButton = el.querySelector(`#delete-${board._id}`);
   deleteButton.addEventListener("click", () => {
     axios.delete(`api/boards/${board._id}`).then((_) => {
       //are you sure pop up should go here
@@ -43,14 +48,10 @@ function renderUserBoards(board) {
     });
   });
 
-  const editDiv = document.createElement("div");
-  editDiv.id = `edit-board-${board._id}`;
-  const editButton = document.createElement("button");
-  editButton.textContent = "Edit";
+  const editButton = el.querySelector(`#edit-${board._id}`);
   editButton.addEventListener("click", () => {
     renderEditForm(board);
   });
-  editDiv.append(editButton);
 
   // Disable buttons if no logged in user
   axios
@@ -60,13 +61,12 @@ function renderUserBoards(board) {
       deleteButton.disabled = true;
       editButton.disabled = true;
     });
-
-  el.append(boardTitle, boardDesc, creatorName, deleteButton, editDiv);
   return el;
 }
 
 function renderEditForm(board) {
   const form = document.createElement("form");
+  // I want the form to be a modal
   form.innerHTML = `
         <label for="title">Title:</label>
         <input type="text" name="title" value="${board.kanban_title}">
@@ -94,5 +94,5 @@ function renderEditForm(board) {
       });
   });
 
-  document.getElementById(`edit-board-${board._id}`).replaceChildren(form);
+  document.getElementById(`edit-${board._id}`).replaceChildren(form);
 }
