@@ -1,4 +1,3 @@
-
 import { renderBoard } from "./board.js";
 
 let name;
@@ -7,11 +6,10 @@ let column;
 let columnTitle;
 
 export function renderAddCardForm(boardId, columnId) {
-  console.log(columnId);
   const heading = document.createElement("h1");
 
   Promise.all([
-    axios.get("/api/session"),
+    axios.get(`/api/session`),
     axios.get(`/api/boards/${boardId}`)
   ])
     .then(([sessionResponse, boardResponse]) => {
@@ -51,7 +49,7 @@ export function renderAddCardForm(boardId, columnId) {
         const comment = {
           comment_creator: name,
           comment_create_time: formattedTime,
-          comment_content: ` created this card to ${columnTitle}`, // 添加其他评论相关的内容
+          comment_content: ` created this card to ${columnTitle} at`, // 添加其他评论相关的内容
         };
         const data = {
           card_title: formData.get("title"),
