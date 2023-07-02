@@ -5,7 +5,7 @@ export function renderLoginForm() {
   const page = document.getElementById("page");
   const loginDiv = document.createElement("div");
   loginDiv.innerHTML = `
-  <section class="h-100 gradient-form" style="background-color: #eee;">
+  <section class="h-100" style="background-color: #eee;">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
       <div class="col-xl-10">

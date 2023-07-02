@@ -22,22 +22,22 @@ function setHeaderHTML(name) {
   const header = document.getElementById("header-nav");
   header.innerHTML = `
       <div class="collapse navbar-collapse justify-content-center">
-      <h1 class="navbar-brand mb-0 fs-1">Kanbanify</h1>
+      <h1 class="navbar-brand mb-0 fs-1" style="cursor: pointer;" id="kanban-logo">Kanbanify</h1>
       <ul id="navlist" class="navbar-nav justify-content-center">
           
           ${
             name
               ? `
-            <li id="boards" class="nav-item active"><p class="nav-link">My Boards</p></li>
-            <li id="add-board" class="nav-item active"><p class="nav-link">Create New Board</p></li>
+            <li id="boards" class="nav-item active"><p class="nav-link" style="cursor: pointer;">My Boards</p></li>
+            <li id="add-board" class="nav-item active" ><p class="nav-link" style="cursor: pointer;">Create New Board</p></li>
             <li><p class="nav-link fw-bold">Hello ${name}!</p></li>
-            <li id="logout" class="nav-item active"><p class="nav-link">Logout</p></li>
+            <li id="logout" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Logout</p></li>
             
             `
               : `
-            <li id="signUp" class="nav-item active"><p class="nav-link">Signup</p></li>
-            <li id="login" class="nav-item active"><p class="nav-link">Login</p></li>
-            <li id="home" class="nav-item active"><p class="nav-link">Home</p></li>
+            <li id="signUp" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Signup</p></li>
+            <li id="login" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Login</p></li>
+            <li id="home" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Home</p></li>
             
             `
           }
@@ -58,7 +58,13 @@ function setHeaderHTML(name) {
     document
       .querySelector("#navlist>#boards")
       .addEventListener("click", () => renderBoardList());
+    document
+      .querySelector("#kanban-logo")
+      .addEventListener("click", () => renderBoardList());
   } else {
+    document
+      .querySelector("#kanban-logo")
+      .addEventListener("click", () => renderHomePage());
     document
       .querySelector("#navlist>#home")
       .addEventListener("click", () => renderHomePage());
