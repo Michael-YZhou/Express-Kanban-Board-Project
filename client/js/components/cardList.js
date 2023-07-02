@@ -36,8 +36,9 @@ export function renderCard(boardId,columnId,cardId) {
             cardTitle.name = 'title';
             cardTitle.style.border = '0px';
             cardTitle.style.width = '100%';
-            cardTitle.style.fontSize = '20px';
-            cardTitle.style.padding = '5px';
+            cardTitle.style.fontSize = '30px';
+            cardTitle.style.padding = '10px';
+            cardTitle.style.fontStyle = 'border';
             cardTitle.addEventListener('focus',()=>{
               console.log('focus');
             })
@@ -106,14 +107,31 @@ export function renderCard(boardId,columnId,cardId) {
             //     });
             // });
             const cardCreator = document.createElement('p');
-            cardCreator.textContent = `Creator:${card.card_creator}`;
+            cardCreator.textContent = `Card creator:${card.card_creator}`;
+
+
+            const cardMembersContainer = document.createElement('div');
+            cardMembersContainer.style.display='flex';
 
             const cardMembers = document.createElement('p');
             cardMembers.textContent = `Member:${card.card_members}`;
             
-            const cardDescription = document.createElement('h2');
-            cardDescription.textContent = `Description:`;
+            const cardAddMembersButton = document.createElement('button');
+            cardAddMembersButton.classList.add('btn', 'btn-primary', 'btn-sm');
+            cardAddMembersButton.style.width = '25px';
+            cardAddMembersButton.style.height = '20px';
+            cardAddMembersButton.textContent = '+';
+            cardAddMembersButton.style.display = 'flex';
+            cardAddMembersButton.style.alignItems = 'center';
+            cardAddMembersButton.style.justifyContent = 'center';
+            cardAddMembersButton.style.margin = '2px';
+            cardMembersContainer.append(cardMembers,cardAddMembersButton);
 
+            const descriptionContainer = document.createElement('div');
+            const cardDescription = document.createElement('p');
+            cardDescription.textContent = `Description:`;
+            cardDescription.style.fontSize = '20px';
+            cardDescription.style.margin = '2px';
             const errorMessage = document.createElement('p');
             errorMessage.classList.add('error-message');
             
@@ -122,7 +140,7 @@ export function renderCard(boardId,columnId,cardId) {
                 <div class="form-floating">
                     <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea" style="width:550px;"></textarea>
                     <label for="floatingTextarea">${card.card_desc}</label>
-                    <input type='submit'>
+                    <button type='submit' class="btn btn-primary btn-sm" id="cancel-button"> Save </button>
                 </div>
             `;
 
@@ -151,6 +169,11 @@ export function renderCard(boardId,columnId,cardId) {
                   console.log(error);
                 });
             });
+
+            descriptionContainer.append(cardDescription,descriptionForm);
+            
+
+            const commentContainer = document.createElement('div');
             
             const commentContent = document.createElement('p');
             console.log(card.card_comment);
@@ -174,7 +197,7 @@ export function renderCard(boardId,columnId,cardId) {
                   if ('comment_id' in comment) {
                     const editButton = document.createElement('button');
                     editButton.textContent = 'Edit';
-                    editButton.classList.add('edit-button');
+                    editButton.classList.add('btn','btn-warning','btn-sm');
                     commentId = comment.comment_id
                     console.log(commentId);
                     // 绑定编辑按钮的事件处理程序
@@ -238,7 +261,7 @@ export function renderCard(boardId,columnId,cardId) {
             
                   const deleteButton = document.createElement('button');
                   deleteButton.textContent = 'Delete';
-                  deleteButton.classList.add('delete-button');
+                  deleteButton.classList.add('btn','btn-danger','btn-sm');
                   // 绑定删除按钮的事件处理程序
                   deleteButton.addEventListener('click',()=>{
                     commentId = comment.comment_id
@@ -262,7 +285,7 @@ export function renderCard(boardId,columnId,cardId) {
                 <div class="form-floating">
                   <textarea class="form-control" name="comment" placeholder="Leave a comment here" id="floatingTextarea2" style="width:550px;height: 100px"></textarea>
                   <label for="floatingTextarea2">Comments</label>
-                  <input type='submit'>
+                  <button type='submit' class="btn btn-primary btn-sm">Save</button>
                 </div>
             `
             commentForm.addEventListener('submit',(e)=>{
@@ -279,9 +302,13 @@ export function renderCard(boardId,columnId,cardId) {
                 renderCard(boardId,columnId,cardId)
               })
             })
-            cardInfoContainer.append(cardTitle,cardCreator,cardMembers,cardDescription,descriptionForm,commentContent,commentForm);
-
+            cardInfoContainer.append(cardTitle,cardCreator,cardMembersContainer,descriptionContainer,commentContent,commentForm);
+            
+            const buttonGroup = document.createElement('div');
+            buttonGroup.style.display = 'flex';
+            buttonGroup.style.flexDirection = 'spacebetween';
             const deleteCardButton = document.createElement('button');
+            deleteCardButton.classList.add("btn", "btn-danger");
             deleteCardButton.textContent = 'Delete the card';
             deleteCardButton.addEventListener(('click'),()=>{
               axios.delete(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((_)=>{
@@ -289,8 +316,16 @@ export function renderCard(boardId,columnId,cardId) {
               })
             })
 
-    
-            cardContainer.append(cardInfoContainer,deleteCardButton)
+            const backToColumnButton = document.createElement('button');
+            backToColumnButton.textContent = 'Go back';
+            backToColumnButton.classList.add("btn","btn-success")
+            backToColumnButton.addEventListener(('click'),()=>{
+              axios.get(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`).then((_)=>{
+                renderBoard(boardId);
+              })
+            })
+            buttonGroup.append(deleteCardButton,backToColumnButton);
+            cardContainer.append(cardInfoContainer,buttonGroup);
         
         // add the column to columns section
         page.replaceChildren(cardContainer);

@@ -25,7 +25,7 @@ export function renderAddCardForm(boardId, columnId) {
       });
       columnTitle = column.column_title;
       console.log(columnTitle)
-      heading.textContent = `Add card, ${name}`;
+      heading.textContent = `Please add card, ${name}`;
 
       // 进一步操作和渲染表单的代码
       const page = document.getElementById("page");
@@ -34,7 +34,7 @@ export function renderAddCardForm(boardId, columnId) {
       const form = document.createElement("form");
       form.innerHTML = `
             <label for="title">Title:</label>
-            <input type="text" name="title">
+            <input type="text" name="title" required>
             <label for="description">Description: </label>
             <input type="text" name="description">
             <input type="submit">
