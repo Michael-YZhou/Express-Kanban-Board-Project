@@ -320,7 +320,9 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
     })
     .then((board) => {
       // Once the board document is retrieved, the code accesses the specified column using the column ID.
-      const column = request.params.columnId;
+      const columnIndex = board.kanban_columns.findIndex(
+        (column) => column.column_id == request.params.columnId
+      );
       console.log(request.body.data);
       /*
       Add a new card to column
@@ -329,7 +331,7 @@ router.post("/:boardId/columns/:columnId", (request, response) => {
       and other properties such as card_title, card_desc, card_creator, card_members, and card_comment are extracted from the request body.
       The new card object is pushed to the cards array of the specified column.
       */
-      board.kanban_columns[column].cards.push({
+      board.kanban_columns[columnIndex].cards.push({
         card_id: board.card_id,
         card_title: request.body.card_title,
         card_desc: request.body.card_desc,

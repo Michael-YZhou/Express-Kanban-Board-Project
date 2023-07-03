@@ -75,7 +75,7 @@ export function renderBoard(boardId) {
     //  this is the container for all columns/lists, it's a flex box
     const columnsContainer = document.createElement("div");
     columnsContainer.classList =
-      "d-flex gap-3 flex-nowrap overflow-scroll text-center";
+      "d-flex h-100 gap-3 flex-nowrap overflow-scroll text-center";
 
     // create a column element for every list and append to the columns container
     for (let column of board.kanban_columns) {
