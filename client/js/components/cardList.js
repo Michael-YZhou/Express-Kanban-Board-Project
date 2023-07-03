@@ -22,10 +22,11 @@ export function renderCard(boardId,columnId,cardId) {
       const card = board.data;
       // console.log(board)
       const cardContainer = document.createElement("div");
+      cardContainer.classList.add('card');
       //Css for cardContainer
       cardContainer.id = "card-container"; 
       cardContainer.style.width = '36rem';
-      cardContainer.style.height = '36rem';
+      cardContainer.style.height = '100%';
       // render the header section of the board
             const cardInfoContainer = document.createElement('div');
             cardInfoContainer.classList.add('cardsinfo');
