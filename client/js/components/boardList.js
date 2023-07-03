@@ -103,7 +103,7 @@ function renderUserBoards(board) {
   return el;
 }
 
-function renderEditForm(board, el) {
+export function renderEditForm(board, el) {
   let form = el.querySelector(`#edit-form-${board._id}`);
 
   form.addEventListener("submit", (event) => {

@@ -1,5 +1,6 @@
 import { renderAddCardForm } from "./addCard.js";
 import { renderCard } from "./cardList.js";
+import { renderBoardList, renderEditForm } from "./boardList.js";
 
 export function renderBoard(boardId) {
   const page = document.getElementById("page");
@@ -44,11 +45,17 @@ export function renderBoard(boardId) {
                 ❖ Menu
               </a>
               <ul class="dropdown-menu">
-                <li><a id="rename-board-btn" class="dropdown-item" href="#">Rename Board</a></li>
+                <li><p id="rename-board-${
+                  board._id
+                }" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-edit-${
+      board._id
+    }" >Edit Board</p></li>
                 <li><a id="add-list" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addColModal" href="#">Add List</a></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a id="delete-board-btn" class="dropdown-item" href="#">Delete Board</a>
+                  <p id="delete-board-${
+                    board._id
+                  }" class="dropdown-item">Delete Board</p>
                 </li>
               </ul>
             </li>
@@ -65,10 +72,79 @@ export function renderBoard(boardId) {
           </ul>
         </div>
       </div>
+
+      <div class="modal fade" id="modal-edit-${board._id}" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" >Edit Board</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form class = "mx-1 mx-md-4"id="edit-form-${board._id}">
+          <div class="modal-body">
+            <div class="d-flex flex-row align-items-center mb-4">
+                <label class="form-label" for="title">Title:</label>'
+                <input class ="form-control" type="text" name="title" value="${
+                  board.kanban_title
+                }">
+            </div>
+          <div class="d-flex flex-row align-items-center mb-4">
+              <label class="form-label" for="description"> Description: </label>
+              <input class= "form-control" type="text" name="description" value="${
+                board.kanban_desc
+              }">
+          </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-warning" data-bs-dismiss="modal" >Save changes</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+      
     </nav>
     `;
 
     boardContainer.insertAdjacentHTML("beforeend", boardHeaderNavHTML);
+    /******************* Section  - connect delete/put APIS to buttons  ******************/
+    const deleteBrdBtn = boardContainer.querySelector(
+      `#delete-board-${board._id}`
+    );
+    deleteBrdBtn.addEventListener("click", (event) => {
+      axios.delete(`api/boards/${board._id}`).then((_) => {
+        renderBoardList();
+      });
+    });
+
+    const editButton = boardContainer.querySelector(
+      `#rename-board-${board._id}`
+    );
+    editButton.addEventListener("click", () => {
+      let editBoardForm = boardContainer.querySelector(
+        `#edit-form-${board._id}`
+      );
+
+      editBoardForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(editBoardForm);
+
+        const data = {
+          kanban_title: formData.get("title"),
+          kanban_desc: formData.get("description"),
+        };
+
+        axios
+          .put(`/api/boards/${board._id}`, data)
+          .then((_) => {
+            renderBoard(board._id);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
+    });
 
     /******************* Section 2 - Create the Columns Section of the Board Page ******************/
 
