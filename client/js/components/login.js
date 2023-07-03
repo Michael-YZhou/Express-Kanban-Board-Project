@@ -46,7 +46,7 @@ export function renderLoginForm() {
                 </form>
               </div>
             </div>
-            <div class="col-lg-6 d-flex align-items-center" style="background-image: url('https://images.unsplash.com/photo-1512314889357-e157c22f938d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80'); background-size: cover;">
+            <div class="col-lg-6 d-flex align-items-center" style="background-image: url('../img/logo-removebg-preview.png'); background-size: 450px 520px; background-repeat: no-repeat;">
 
             </div>
           </div>
