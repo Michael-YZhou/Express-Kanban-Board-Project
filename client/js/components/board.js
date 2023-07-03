@@ -4,7 +4,7 @@ import { renderBoardList, renderEditForm } from "./boardList.js";
 
 export function renderBoard(boardId) {
   const page = document.getElementById("page");
-
+  page.classList = "d-flex flex-column flex-grow-1";
   // display the loading text while data is being retrieved and page is renderred
   const paragraph = document.createComment("p");
   paragraph.textContent = "Loading";
@@ -15,10 +15,11 @@ export function renderBoard(boardId) {
     console.log(board);
     const boardContainer = document.createElement("div");
     boardContainer.id = "board-container";
+    boardContainer.classList = "d-flex flex-column h-100";
 
     /************************* Section 1 - Create Board Header Section *************************/
     const boardHeaderNavHTML = `
-      <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 px-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">${board.kanban_title}</a>
         <button
@@ -151,12 +152,14 @@ export function renderBoard(boardId) {
     //  this is the container for all columns/lists, it's a flex box
     const columnsContainer = document.createElement("div");
     columnsContainer.classList =
-      "d-flex h-100 gap-3 flex-nowrap overflow-scroll text-center";
+      "d-flex gap-3 flex-nowrap overflow-scroll text-center flex-grow-1 px-4";
+    columnsContainer.style.alignItems = "flex-start"; // remove the default strech alignment, align cards to the top
 
     // create a column element for every list and append to the columns container
     for (let column of board.kanban_columns) {
       const colElem = document.createElement("div");
-      colElem.classList = "col-3 card";
+      colElem.classList = "card flex-shrink-0 bg-light"; // keep the columns at a fixed width in the flex container
+      colElem.style.width = "250px";
 
       // column header section is a flex box
       const colHeader = document.createElement("div");
@@ -164,8 +167,32 @@ export function renderBoard(boardId) {
         "card-header d-flex justify-content-between align-items-center";
 
       // col title and the dropdown menu is inside the column Header, column Header is appended to colElem
-      const columnTitle = document.createElement("div");
-      columnTitle.textContent = column.column_title;
+      const columnTitle = document.createElement("input");
+      columnTitle.required = true;
+      columnTitle.value = column.column_title;
+      columnTitle.style.border = "0px";
+      columnTitle.classList = "bg-light";
+
+      // eventListener for changing column title
+      columnTitle.addEventListener("keypress", (event) => {
+        if (event.key.toLowerCase() === "enter") {
+          event.preventDefault();
+          const newColTitle = event.target.value;
+
+          const data = {
+            title: newColTitle,
+          };
+
+          axios
+            .patch(`/api/boards/${boardId}/columns/${column.column_id}`, data)
+            .then(() => {
+              renderBoard(boardId);
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        }
+      });
 
       // this is the dropdown menu for column actions (bootstrap used)
       const dropDown = document.createElement("div");
@@ -199,6 +226,7 @@ export function renderBoard(boardId) {
       moveListBtn.setAttribute("data-bs-target", "#moveColModal");
       // set a data attribute for the form in the model to read column id!!!
       moveListBtn.setAttribute("data-column-id", `${column.column_id}`);
+      moveListBtn.setAttribute("data-column-title", `${column.column_title}`);
 
       const deleteListBtn = document.createElement("li");
       deleteListBtn.setAttribute("id", "delete-list");
@@ -210,6 +238,7 @@ export function renderBoard(boardId) {
       deleteListBtn.setAttribute("data-bs-target", "#deleteColModal");
       // set a data attribute for the form in the model to read column id!!!
       deleteListBtn.setAttribute("data-column-id", `${column.column_id}`);
+      deleteListBtn.setAttribute("data-column-title", `${column.column_title}`);
 
       dropDownList.append(addCardBtn, moveListBtn, deleteListBtn);
       dropDown.append(dropDownBtn, dropDownList);
@@ -224,7 +253,7 @@ export function renderBoard(boardId) {
       // create and append the cards to the column div
       for (let card of column["cards"]) {
         const cardElem = document.createElement("div");
-        cardElem.classList.add("card");
+        cardElem.classList = "card mt-2 p-2 bg-light";
         cardElem.style.width = "100%";
 
         const cardTitle = document.createElement("input");
@@ -233,7 +262,7 @@ export function renderBoard(boardId) {
         cardTitle.required = true;
         cardTitle.style.border = "0px";
         cardTitle.style.width = "100%";
-        cardTitle.style.fontSize = "20px";
+        cardTitle.style.fontSize = "14px";
         cardTitle.style.padding = "10px";
         cardTitle.style.fontStyle = "border";
         cardTitle.addEventListener("focus", () => {
@@ -293,7 +322,7 @@ export function renderBoard(boardId) {
         });
 
         const cardMoveButton = document.createElement("button");
-        cardMoveButton.textContent = "move";
+        cardMoveButton.textContent = "Move";
         cardMoveButton.setAttribute("type", "button");
         cardMoveButton.classList.add("btn", "btn-outline-success");
         cardMoveButton.addEventListener("click", () => {
@@ -378,7 +407,7 @@ export function renderBoard(boardId) {
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button id="add-col-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Add List</button>
+              <button id="add-col-btn" type="button" class="btn btn-warning" data-bs-dismiss="modal">Add List</button>
             </div>
           </div>
         </div>
@@ -409,7 +438,7 @@ export function renderBoard(boardId) {
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button id="move-col-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Move List</button>
+              <button id="move-col-btn" type="button" class="btn btn-warning" data-bs-dismiss="modal">Move</button>
             </div>
           </div>
         </div>
@@ -429,10 +458,11 @@ export function renderBoard(boardId) {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+              <p>Are you sure you want to delete this list? 🗑️</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button id="delete-col-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Delete</button>
+              <button id="delete-col-btn" type="button" class="btn btn-warning" data-bs-dismiss="modal">Delete</button>
             </div>
           </div>
         </div>
@@ -458,15 +488,10 @@ export function renderBoard(boardId) {
         .catch((err) => console.error(err));
     });
 
-    // add eventListener to the board title input field
-    // this will show/hide input boarder when focus, and update title on keypress(Enter)
-    // const boardTitle = document.getElementById("board-title");
-    // boardTitle.style.border = "0px";
-    // Blur or press Enter to confirm change (add event listener and send to api)
-
     // attach eventListener to the body of the MOVE column model so that when modal pops up, the form value gets undated based on the column selected
     const moveColModal = document.getElementById("moveColModal");
     let curColumnId;
+    let columnTitle;
     if (moveColModal) {
       moveColModal.addEventListener("show.bs.modal", (event) => {
         // Button that triggered the modal
@@ -474,6 +499,7 @@ export function renderBoard(boardId) {
         console.log(button);
         // Extract the current column id from data-column-id attributes
         curColumnId = button.getAttribute("data-column-id");
+        columnTitle = button.getAttribute("data-column-title");
         // If necessary, you could initiate an Ajax request here
         // and then do the updating in a callback.
 
@@ -481,7 +507,7 @@ export function renderBoard(boardId) {
         const modalTitle = moveColModal.querySelector("#moveColModalLabel");
         const modalBodyInput = moveColModal.querySelector(".modal-body input");
 
-        modalTitle.textContent = `Moving column ${curColumnId}`;
+        modalTitle.textContent = `Move list: ${columnTitle}`;
         // modalBodyInput.value = curColumnId;
       });
     }
@@ -494,7 +520,7 @@ export function renderBoard(boardId) {
         toPosition: Number(document.getElementById("move-col-input").value),
       };
       axios
-        .patch(`/api/boards/${boardId}/columns/${curColumnId}`, selectValue)
+        .put(`/api/boards/${boardId}/columns/${curColumnId}`, selectValue)
         .then((_) => renderBoard(boardId))
         .catch((err) => console.error(err));
     });
@@ -508,13 +534,14 @@ export function renderBoard(boardId) {
         console.log(button);
         // Extract the current column id from data-column-id attributes
         curColumnId = button.getAttribute("data-column-id");
+        columnTitle = button.getAttribute("data-column-title");
         // If necessary, you could initiate an Ajax request here
         // and then do the updating in a callback.
 
         // Update the modal's content.
         const modalTitle = deleteColModal.querySelector("#deleteColModalLabel");
 
-        modalTitle.textContent = `Delete column ${curColumnId}`;
+        modalTitle.textContent = `Delete list: ${columnTitle}`;
         // modalBodyInput.value = curColumnId;
       });
     }
