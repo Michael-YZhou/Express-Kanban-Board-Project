@@ -34,11 +34,6 @@ export function renderLoginForm() {
                   <label class="form-label text-danger" id="error-msg-login" for="error"></label>
                 </div>
 
-                  <div class="text-center pt-1 mb-5 pb-1">
-                    <button class="btn btn-warning btn-block fa-lg" type="submit">Log in</button>
-                    <a class="text-muted" href="#!">Forgot password?</a> 
-                  </div>
-
                   <div class="d-flex align-items-center justify-content-center pb-4">
                     <p class="mb-0 me-2">Don't have an account?</p>
                     <button type="button" class="btn btn-outline-success" id="sign-up-redirect">Create new</button>

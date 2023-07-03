@@ -16,7 +16,7 @@ export function renderHomePage() {
         </div>
       </div>
       <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-          <img class="rounded-lg-3" src="../img/logo.png" alt="" width="500">
+          <img class="rounded-lg-3" src="https://images.unsplash.com/photo-1512314889357-e157c22f938d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80"  width="750">
       </div>
     </div>
   </div>
