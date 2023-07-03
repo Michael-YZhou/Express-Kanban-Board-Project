@@ -4,6 +4,7 @@ import { renderLoginForm } from "./login.js";
 import { logout } from "./logout.js";
 import { renderHomePage } from "./home.js";
 import { renderSignUpForm } from "./signUp.js";
+import { renderUsagePage } from "./usagePage.js";
 
 export function renderHeader() {
   let name;
@@ -33,14 +34,17 @@ function setHeaderHTML(name) {
             <li><p class="nav-link fw-bold">Hello ${name}!</p></li>
             <li id="logout" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Logout</p></li>
             
+            
             `
               : `
             <li id="signUp" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Signup</p></li>
             <li id="login" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Login</p></li>
             <li id="home" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Home</p></li>
             
+            
             `
           }
+          <li id="usage-page" class="nav-item active"><p class="nav-link" style="cursor: pointer;">Kanbanify Guide</p></li>
       </ul>
       </div>
     `;
@@ -75,4 +79,7 @@ function setHeaderHTML(name) {
       .querySelector("#navlist>#login")
       .addEventListener("click", () => renderLoginForm());
   }
+  document
+    .querySelector("#usage-page")
+    .addEventListener("click", () => renderUsagePage());
 }
