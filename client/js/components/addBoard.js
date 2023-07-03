@@ -86,6 +86,7 @@ export function renderAddBoardForm() {
       column_id: 1,
       card_id: 1,
       comment_id: 0,
+      total_columns:1,
       kanban_columns: [
         {
           column_id: 0,
