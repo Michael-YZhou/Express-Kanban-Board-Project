@@ -3,6 +3,8 @@ import { renderBoard } from "./board.js";
 export function renderBoardList() {
   const page = document.getElementById("page");
   const projectContainer = document.createElement("div");
+  const dashHeader = document.createElement("h1");
+  dashHeader.textContent = "Dashboard";
   projectContainer.classList.add(
     "row",
     "row-cols-1",
@@ -21,7 +23,7 @@ export function renderBoardList() {
   axios.get("/api/boards").then((response) => {
     let listElements = [];
 
-    page.replaceChildren(projectContainer);
+    page.replaceChildren(dashHeader, projectContainer);
     for (let board of response.data) {
       listElements.push(renderUserBoards(board));
     }
@@ -33,7 +35,7 @@ function renderUserBoards(board) {
   const el = document.createElement("div");
 
   el.innerHTML = `
-  <div class="col">
+  <div class="col show-boards">
     <div class="card h-100 d-flex align-items-center justify-content-center">
       <div class="card-body">
         <h5 class="card-title">${board.kanban_title}</h5>
@@ -123,3 +125,4 @@ function renderEditForm(board, el) {
       });
   });
 }
+``;
