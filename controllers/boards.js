@@ -203,8 +203,9 @@ router.post("/:boardId/columns", (request, response) => {
         column_title: request.body.title,
         cards: [],
       });
-      // update the column id tracker
+      // update the column id tracker and total number of columns
       board.column_id += 1;
+      board.total_columns += 1;
       console.log(board);
       // store the updated json data in database
       const filter = { _id: new ObjectId(request.params.boardId) };
@@ -230,10 +231,6 @@ router.delete("/:boardId/columns/:columnId", (request, response) => {
       board.kanban_columns.splice(indexToRemove, 1);
       // update the total number of columns
       board.total_columns = board.kanban_columns.length;
-      // // substract 1 from the position of all elements after the removed column
-      // for (let i = indexToRemove; i < board.total_columns; i++) {
-      //   board.kanban_columns[i].column_position -= 1;
-      // }
       console.log(board);
       // update the databese
       const filter = { _id: new ObjectId(request.params.boardId) };
@@ -255,10 +252,11 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
     .findOne({ _id: new ObjectId(request.params.boardId) })
     .then((board) => {
       const curPosition = board.kanban_columns.findIndex(
-        (column) => column.column_id === request.params.columnId
-      ); // index of the col = position - 1
-      const newPosition = request.body.toPosition - 1;
-      // move the selected column to the new index
+        (column) => column.column_id === Number(request.params.columnId)
+      );
+      const newPosition = request.body.toPosition;
+      console.log(curPosition, newPosition);
+      // move the selected column from current index to the new index
       board.kanban_columns = arrayMove(
         board.kanban_columns,
         curPosition,
@@ -277,8 +275,6 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
     .catch((err) => console.error(err));
   //
 });
-
-/********************************* columns finished ******************************** */
 
 /******************************** cards apis ******************************* */
 
