@@ -2,6 +2,8 @@ import { renderBoard } from "./board.js";
 
 export function renderBoardList() {
   const page = document.getElementById("page");
+  page.classList.remove("d-flex", "flex-column", "flex-grow-1");
+
   const projectContainer = document.createElement("div");
   const dashHeader = document.createElement("h1");
   dashHeader.textContent = "Dashboard";
@@ -14,6 +16,7 @@ export function renderBoardList() {
     "h-50",
     "p-5"
   );
+
   projectContainer.style = "background-color: #eee;";
 
   const paragraph = document.createElement("p");
@@ -75,6 +78,7 @@ function renderUserBoards(board) {
   `;
 
   let openBoard = el.querySelector(`#open-${board._id}`);
+
   openBoard.addEventListener("click", () => {
     renderBoard(board._id);
   });
