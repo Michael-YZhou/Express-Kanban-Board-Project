@@ -246,7 +246,7 @@ router.delete("/:boardId/columns/:columnId", (request, response) => {
 
 // Move a column to a different position
 // the destination position should be provided in request body {"toPosition": int}
-router.patch("/:boardId/columns/:columnId", (request, response) => {
+router.put("/:boardId/columns/:columnId", (request, response) => {
   // retrieve the board from the db
   boardsCollection
     .findOne({ _id: new ObjectId(request.params.boardId) })
@@ -274,6 +274,24 @@ router.patch("/:boardId/columns/:columnId", (request, response) => {
     })
     .catch((err) => console.error(err));
   //
+});
+
+router.patch("/:boardId/columns/:columnId", (request, response) => {
+  boardsCollection
+    .findOne({ _id: new ObjectId(request.params.boardId) })
+    .then((board) => {
+      const colIndex = board.kanban_columns.findIndex(
+        (column) => column.column_id === Number(request.params.columnId)
+      );
+      board.kanban_columns[colIndex].column_title = request.body.title;
+      const filter = { _id: new ObjectId(request.params.boardId) };
+      const update = { $set: board };
+      boardsCollection.updateOne(filter, update).then((_) =>
+        response.json({
+          message: `column has been renamed`,
+        })
+      );
+    });
 });
 
 /******************************** cards apis ******************************* */
