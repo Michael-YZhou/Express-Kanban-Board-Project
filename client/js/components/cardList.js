@@ -157,8 +157,7 @@ export function renderCard(boardId, columnId, cardId) {
           .catch((error) => {
             console.log(error);
           });
-      }
-      //or return input value
+      }else{//or return input value
       const data = {
         card_desc: description,
       };
@@ -171,9 +170,10 @@ export function renderCard(boardId, columnId, cardId) {
         .catch((error) => {
           console.log(error);
         });
-    });
-
+    };
+    }),
     descriptionContainer.append(cardDescription, descriptionForm);
+  
 
     const commentContainer = document.createElement("div");
 
