@@ -139,13 +139,17 @@ export function renderCard(boardId, columnId, cardId) {
       event.preventDefault();
       const formData = new FormData(descriptionForm);
       const description = formData.get("description");
-
+      let data;
       //Check if description is empty or not
       if (description.trim() === "") {
         // input is empty return 'Add a more detailed description'
-        const data = {
+          data = {
           card_desc: card.card_desc,
-        };
+        }
+      }else{//or return input value
+           data = {
+            card_desc: description,
+          }
         axios
           .put(
             `/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`,
@@ -157,21 +161,9 @@ export function renderCard(boardId, columnId, cardId) {
           .catch((error) => {
             console.log(error);
           });
-      }else{//or return input value
-      const data = {
-        card_desc: description,
-      };
+      }
+    });
 
-      axios
-        .put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
-        .then(() => {
-          renderCard(boardId, columnId, cardId);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    }),
     descriptionContainer.append(cardDescription, descriptionForm);
   
 
