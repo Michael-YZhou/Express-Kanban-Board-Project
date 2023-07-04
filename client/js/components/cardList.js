@@ -73,8 +73,22 @@ export function renderCard(boardId, columnId, cardId) {
           });
       }
     });
-    cardTitle.addEventListener("blur", () => {
-      console.log("blur");
+    cardTitle.addEventListener("blur", (event) => {
+      event.preventDefault();
+      const title = event.target.value;
+
+      const data = {
+        card_title: title,
+      };
+
+      axios
+        .put(`/api/boards/${boardId}/columns/${columnId}/cards/${cardId}`, data)
+        .then(() => {
+          renderCard(boardId, columnId, cardId);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     });
 
     const cardCreator = document.createElement("p");
