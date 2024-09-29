@@ -5,15 +5,17 @@ The app in this repo is deployed at https://express-proj.onrender.com
 
 ## Overview
 
-Kanbanify is a Single Page Application (SPA) that allows users to create kanban boards, including adding and removing columns, and managing individual cards within each column. The application is built using MongoDB, Express.js, Node.js, and Bootstrap.
+Kanbanify is a single-page application (SPA) that allows users to create Kanban boards, including adding and removing columns and managing individual cards within each column. The application is built using MongoDB, Express.js, Node.js, and Bootstrap.
+
+![User Interface](./user-interface.jpg)
 
 ## Features
 
-- **User Accounts:** Users can create their own accounts to securely save and access their kanban boards.
+- **User Accounts:** Users can create their accounts to securely save and access their Kanban boards.
 
-- **Kanban Board Creation:** Users can create their own kanban boards to organize tasks and workflows.
+- **Kanban Board Creation:** Users can create their kanban boards to organize tasks and workflows.
 
-- **Column Management:** Users can add and remove columns within a kanban board to customize their workflow.
+- **Column Management:** Users can add and remove columns within a Kanban board to customize their workflow.
 
 - **Card Management:** Users can create, edit, move and delete individual cards within each column to track and manage their tasks.
 
@@ -25,7 +27,7 @@ The following features are planned for future development:
 
 - **Live Updating:** The application will utilize web sockets to provide real-time updates to all connected users, allowing them to see changes made by other members without refreshing the page.
 
-- **Card Color Customization:** Users will have the ability to change the color of individual cards to match their preferences or to indicate priority or status.
+- **Card Color Customization:** Users will have the ability to change the colour of individual cards to match their preferences or to indicate priority or status.
 
 ## Technologies Used
 
@@ -61,17 +63,17 @@ Once the application is running, follow these steps to use Kanbanify:
 
 2. After logging in, you will be taken to your dashboard.
 
-3. On the dashboard, you can create a new kanban board by clicking on "Create Board". Provide a title and a description for your board, and then click "Create" to proceed.
+3. On the dashboard, you can create a new Kanban board by clicking "Create Board". Provide a title and a description for your board, and then click "Create" to proceed.
 
-4. You will be redirected to the board view, where you can add columns (called lists) by selecting "Add List" on the "Menu" drop down button.
+4. You will be redirected to the board view, where you can add columns (called lists) by selecting "Add List" on the "Menu" drop-down button.
 
-5. Columns can be easily moved by selecting the dropdown button and clicking on "Move List" and selecting the new position
+5. Columns can be easily moved by selecting the dropdown button clicking on "Move List" and selecting the new position
 
-6. To add cards within a column, click on the column header and then click on the "Add Card" button on the dropdown.
+6. To add cards within a column, click on the column header and the "Add Card" button on the dropdown.
 
-7. Edit, delete cards by clicking on the "Edit" and "Delete" buttons.
+7. Edit, and delete cards by clicking on the "Edit" and "Delete" buttons.
 
-8. Move cards between columns by cliking on "Move" and adding the card to a new column
+8. Move cards between columns by clicking on "Move" and adding the card to a new column
 
 9. To remove a column, click on the column header dropdown and then click on the "Remove Column" button.
 
