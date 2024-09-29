@@ -38,8 +38,6 @@ The following technologies were used to build this application:
 
 ## Installation
 
-## Installation
-
 To run this application locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/your/repository.git`
@@ -51,8 +49,6 @@ To run this application locally, follow these steps:
 4. Start the server: `node server.js`
 
 5. Open your browser and navigate to `http://localhost:3000` to access the application.
-
-## Usage
 
 ## Usage
 
